@@ -209,12 +209,12 @@ resource "aws_dms_endpoint" "this" {
       csv_delimiter                     = lookup(each.value, "csv_delimiter", null)
       csv_row_delimiter                 = lookup(each.value, "csv_row_delimiter", null)
       data_format                       = lookup(each.value, "data_format", null)
-      date_partition_enabled            = lookup(each.value, "data_partition_enabled", null)
+      date_partition_enabled            = lookup(each.value, "date_partition_enabled", null)
       encryption_mode                   = lookup(each.value, "encryption_mode", null)
       external_table_definition         = lookup(each.value, "external_table_definition", null)
       parquet_timestamp_in_millisecond  = lookup(each.value, "parquet_timestamp_in_millisecond", null)
       parquet_version                   = lookup(each.value, "parquet_version", null)
-      server_side_encryption_kms_key_id = lookup(each.value, "server_side_encrypton_kms_key_id", null)
+      server_side_encryption_kms_key_id = lookup(each.value, "server_side_encryption_kms_key_id", null)
       service_access_role_arn           = lookup(each.value, "service_access_role_arn", null)
     }
   }
