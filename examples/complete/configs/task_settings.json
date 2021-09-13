@@ -17,7 +17,7 @@
     "CommitRate": 10000
   },
   "Logging": {
-    "EnableLogging": false
+    "EnableLogging": true
   },
   "ControlTablesSettings": {
     "HistoryTimeslotInMinutes": 5,
