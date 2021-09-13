@@ -201,21 +201,21 @@ resource "aws_dms_endpoint" "this" {
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.S3.html
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.S3.html
   dynamic "s3_settings" {
-    for_each = lookup(each.value, "s3_settings", {})
+    for_each = try(each.value.s3_settings, null) != null ? [each.value.s3_settings] : []
     content {
-      bucket_folder                     = lookup(each.value, "bucket_folder", null)
-      bucket_name                       = lookup(each.value, "bucket_name", null)
-      compression_type                  = lookup(each.value, "compression_type", null)
-      csv_delimiter                     = lookup(each.value, "csv_delimiter", null)
-      csv_row_delimiter                 = lookup(each.value, "csv_row_delimiter", null)
-      data_format                       = lookup(each.value, "data_format", null)
-      date_partition_enabled            = lookup(each.value, "date_partition_enabled", null)
-      encryption_mode                   = lookup(each.value, "encryption_mode", null)
-      external_table_definition         = lookup(each.value, "external_table_definition", null)
-      parquet_timestamp_in_millisecond  = lookup(each.value, "parquet_timestamp_in_millisecond", null)
-      parquet_version                   = lookup(each.value, "parquet_version", null)
-      server_side_encryption_kms_key_id = lookup(each.value, "server_side_encryption_kms_key_id", null)
-      service_access_role_arn           = lookup(each.value, "service_access_role_arn", null)
+      bucket_folder                     = lookup(s3_settings.value, "bucket_folder", null)
+      bucket_name                       = lookup(s3_settings.value, "bucket_name", null)
+      compression_type                  = lookup(s3_settings.value, "compression_type", null)
+      csv_delimiter                     = lookup(s3_settings.value, "csv_delimiter", null)
+      csv_row_delimiter                 = lookup(s3_settings.value, "csv_row_delimiter", null)
+      data_format                       = lookup(s3_settings.value, "data_format", null)
+      date_partition_enabled            = lookup(s3_settings.value, "date_partition_enabled", null)
+      encryption_mode                   = lookup(s3_settings.value, "encryption_mode", null)
+      external_table_definition         = lookup(s3_settings.value, "external_table_definition", null)
+      parquet_timestamp_in_millisecond  = lookup(s3_settings.value, "parquet_timestamp_in_millisecond", null)
+      parquet_version                   = lookup(s3_settings.value, "parquet_version", null)
+      server_side_encryption_kms_key_id = lookup(s3_settings.value, "server_side_encryption_kms_key_id", null)
+      service_access_role_arn           = lookup(s3_settings.value, "service_access_role_arn", null)
     }
   }
 

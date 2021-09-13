@@ -160,7 +160,7 @@ variable "repl_instance_timeouts" {
 # Replication Tasks
 variable "replication_tasks" {
   description = "Map of objects that define the replication tasks to be created"
-  type        = map(any)
+  type        = any
   default     = {}
 }
 
@@ -168,7 +168,7 @@ variable "replication_tasks" {
 # Endpoints
 variable "endpoints" {
   description = "Map of objects that define the endpoints to be created"
-  type        = map(any)
+  type        = any
   default     = {}
 }
 
