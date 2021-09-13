@@ -100,15 +100,15 @@ module "database_migration_service" {
 
 Within DMS you can have multiple combinations of resources depending on your use case. For example (not an exhaustive list of possible combinations):
 #### Simple
-  - One source endpdoint
+  - One source endpoint
   - One target/destination endpoint
   - One replication task
-  - Two event subcriptions
+  - Two event subscriptions
     - Replication instance event subscription
     - Replication task event subscriptions
 
 <p align="center">
-  <img src=".github/images/dms_simple.png" alt="DMS Simple" width="100%">
+  <img src="https://raw.githubusercontent.com/clowdhaus/terraform-aws-dms/main/.github/images/dms_simple.png" alt="DMS Simple" width="100%">
 </p>
 
 #### Multiple endpoints, multiple tasks
@@ -120,7 +120,7 @@ Within DMS you can have multiple combinations of resources depending on your use
     - Replication task event subscription for each task listed above
 
 <p align="center">
-  <img src=".github/images/dms_complex.png" alt="DMS Complex" width="100%">
+  <img src="https://raw.githubusercontent.com/clowdhaus/terraform-aws-dms/main/.github/images/dms_complex.png" alt="DMS Complex" width="100%">
 </p>
 
 In order to accommodate a flexible, multi-resource combinatorial module, keys and maps are used for cross-referencing resources created within the module.
@@ -199,7 +199,7 @@ Continuing the same lookup patter, to create event subscriptions, you simply ref
 Tasks are the "jobs" that perform the necessary actions of migrating from `source` to `target`, including any transformations and/or mappings of the data in transit. Tasks are largely controlled by [task settings](http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Tasks.CustomizingTasks.TaskSettings.html) that are defined in a JSON document.
 
 <p align="center">
-  <img src=".github/images/replication_task.png" alt="Replication Task" width="100%">
+  <img src="https://raw.githubusercontent.com/clowdhaus/terraform-aws-dms/main/.github/images/replication_task.png" alt="Replication Task" width="100%">
 </p>
 
 #### [Example task settings JSON document](https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Tasks.CustomizingTasks.TaskSettings.Saving.html):
