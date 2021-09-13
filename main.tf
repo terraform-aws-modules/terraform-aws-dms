@@ -157,44 +157,44 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Elasticsearch.html
   dynamic "elasticsearch_settings" {
-    for_each = lookup(each.value, "elasticsearch_settings", {})
+    for_each = try(each.value.elasticsearch_settings, null) != null ? [each.value.elasticsearch_settings] : []
     content {
-      endpoint_uri               = each.value.endpoint_uri
-      error_retry_duration       = lookup(each.value, "error_retry_duration", null)
-      full_load_error_percentage = lookup(each.value, "full_load_error_percentage", null)
-      service_access_role_arn    = lookup(each.value, "service_access_role_arn", null)
+      endpoint_uri               = each.elasticsearch_settings.endpoint_uri
+      error_retry_duration       = lookup(each.elasticsearch_settings, "error_retry_duration", null)
+      full_load_error_percentage = lookup(each.elasticsearch_settings, "full_load_error_percentage", null)
+      service_access_role_arn    = lookup(each.elasticsearch_settings, "service_access_role_arn", null)
     }
   }
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kafka.html
   dynamic "kafka_settings" {
-    for_each = lookup(each.value, "kafka_settings", {})
+    for_each = try(each.value.kafka_settings, null) != null ? [each.value.kafka_settings] : []
     content {
-      broker = each.value.broker
-      topic  = lookup(each.value, "topic", null)
+      broker = kafka_settings.value.broker
+      topic  = lookup(kafka_settings.value, "topic", null)
     }
   }
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kinesis.html
   dynamic "kinesis_settings" {
-    for_each = lookup(each.value, "kinesis_settings", {})
+    for_each = try(each.value.kinesis_settings, null) != null ? [each.value.kinesis_settings] : []
     content {
-      message_format          = lookup(each.value, "message_format", null)
-      service_access_role_arn = lookup(each.value, "service_access_role_arn", null)
-      stream_arn              = lookup(each.value, "stream_arn", null)
+      message_format          = lookup(kinesis_settings.value, "message_format", null)
+      service_access_role_arn = lookup(kinesis_settings.value, "service_access_role_arn", null)
+      stream_arn              = lookup(kinesis_settings.value, "stream_arn", null)
     }
   }
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MongoDB.html
   dynamic "mongodb_settings" {
-    for_each = lookup(each.value, "mongodb_settings", {})
+    for_each = try(each.value.mongodb_settings, null) != null ? [each.value.mongodb_settings] : []
     content {
-      auth_mechanism      = lookup(each.value, "auth_mechanism", null)
-      auth_source         = lookup(each.value, "auth_source", null)
-      auth_type           = lookup(each.value, "auth_type", null)
-      docs_to_investigate = lookup(each.value, "docs_to_investigate", null)
-      extract_doc_id      = lookup(each.value, "extract_doc_id", null)
-      nesting_level       = lookup(each.value, "nesting_level", null)
+      auth_mechanism      = lookup(mongodb_settings.value, "auth_mechanism", null)
+      auth_source         = lookup(mongodb_settings.value, "auth_source", null)
+      auth_type           = lookup(mongodb_settings.value, "auth_type", null)
+      docs_to_investigate = lookup(mongodb_settings.value, "docs_to_investigate", null)
+      extract_doc_id      = lookup(mongodb_settings.value, "extract_doc_id", null)
+      nesting_level       = lookup(mongodb_settings.value, "nesting_level", null)
     }
   }
 

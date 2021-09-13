@@ -110,6 +110,7 @@ module "security_group" {
     postgresql-source    = ["postgresql-tcp"]
     mysql-destination    = ["mysql-tcp"]
     replication-instance = ["postgresql-tcp", "mysql-tcp"]
+    kafka-destination    = ["kafka-broker-tcp"]
   }
 
   name        = "${local.name}-${each.key}"
@@ -259,6 +260,30 @@ resource "aws_iam_role" "s3_role" {
   tags = local.tags
 }
 
+# # TODO - coming soon after additional attributes are added
+# module "msk_cluster" {
+#   source  = "clowdhaus/msk-kafka-cluster/aws"
+#   version = "~> 1.0"
+
+#   name                   = local.name
+#   kafka_version          = "2.8.0"
+#   number_of_broker_nodes = 3
+
+#   broker_node_client_subnets  = module.vpc.private_subnets
+#   broker_node_ebs_volume_size = 20
+#   broker_node_instance_type   = "kafka.t3.small"
+#   broker_node_security_groups = [module.security_group.security_group_id]
+
+#   configuration_name        = "${local.name}-configuration"
+#   configuration_description = "Complete ${local.name} configuration"
+#   configuration_server_properties = {
+#     "auto.create.topics.enable" = true
+#     "delete.topic.enable"       = true
+#   }
+
+#   tags = local.tags
+# }
+
 ################################################################################
 # DMS Module
 ################################################################################
@@ -391,6 +416,21 @@ module "dms_aurora_postgresql_aurora_mysql" {
       target_endpoint_key       = "mysql-destination"
       tags                      = { Task = "PostgreSQL-to-MySQL" }
     }
+
+    # # TODO - coming soon after additional attributes are added
+    # kafka-destination = {
+    #   endpoint_id   = "${local.name}-kafka-destination"
+    #   endpoint_type = "target"
+    #   engine_name   = "kafka"
+    #   ssl_mode      = "none"
+
+    #   kafka_settings = {
+    #     broker = module.msk_cluster.bootstrap_brokers
+    #     topic  = local.name
+    #   }
+
+    #   tags = { EndpointType = "kafka-destination" }
+    # }
   }
 
   event_subscriptions = {
