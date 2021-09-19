@@ -43,7 +43,19 @@ module "vpc" {
 
   create_database_subnet_group = true
   enable_nat_gateway           = false # not required, using private VPC endpoint
-  single_nat_gateway           = false
+  single_nat_gateway           = true
+  map_public_ip_on_launch      = false
+
+  manage_default_security_group  = true
+  default_security_group_ingress = []
+  default_security_group_egress  = []
+
+  enable_flow_log                      = true
+  flow_log_destination_type            = "cloud-watch-logs"
+  create_flow_log_cloudwatch_log_group = true
+  create_flow_log_cloudwatch_iam_role  = true
+  flow_log_max_aggregation_interval    = 60
+  flow_log_log_format                  = "$${version} $${account-id} $${interface-id} $${srcaddr} $${dstaddr} $${srcport} $${dstport} $${protocol} $${packets} $${bytes} $${start} $${end} $${action} $${log-status} $${vpc-id} $${subnet-id} $${instance-id} $${tcp-flags} $${type} $${pkt-srcaddr} $${pkt-dstaddr} $${region} $${az-id} $${sublocation-type} $${sublocation-id}"
 
   enable_dhcp_options      = true
   enable_dns_hostnames     = true
@@ -151,12 +163,14 @@ module "rds_aurora" {
   # Creates multiple
   for_each = {
     postgresql-source = {
-      engine         = "aurora-postgresql"
-      engine_version = "11.12"
+      engine                          = "aurora-postgresql"
+      engine_version                  = "11.12"
+      enabled_cloudwatch_logs_exports = ["postgresql"]
     },
     mysql-destination = {
-      engine         = "aurora-mysql"
-      engine_version = "5.7.mysql_aurora.2.07.5"
+      engine                          = "aurora-mysql"
+      engine_version                  = "5.7.mysql_aurora.2.07.5"
+      enabled_cloudwatch_logs_exports = ["general", "error", "slowquery"]
     }
   }
 
@@ -169,9 +183,13 @@ module "rds_aurora" {
   engine_version                  = each.value.engine_version
   replica_count                   = 1
   instance_type                   = "db.t3.medium"
-  storage_encrypted               = false
+  storage_encrypted               = true
   skip_final_snapshot             = true
   db_cluster_parameter_group_name = each.key == "postgresql-source" ? aws_rds_cluster_parameter_group.postgresql.id : null
+
+  enabled_cloudwatch_logs_exports = each.value.enabled_cloudwatch_logs_exports
+  monitoring_interval             = 60
+  create_monitoring_role          = true
 
   vpc_id                 = module.vpc.vpc_id
   subnets                = module.vpc.database_subnets
@@ -183,7 +201,10 @@ module "rds_aurora" {
 }
 
 resource "aws_sns_topic" "example" {
-  name = local.name
+  name              = local.name
+  kms_master_key_id = "alias/aws/sns"
+
+  tags = local.tags
 }
 
 module "s3_bucket" {
@@ -211,10 +232,13 @@ module "s3_bucket" {
 }
 
 resource "aws_s3_bucket_object" "hr_data" {
-  bucket = module.s3_bucket.s3_bucket_id
-  key    = "sourcedata/hr/employee/LOAD0001.csv"
-  source = "data/hr.csv"
-  etag   = filemd5("data/hr.csv")
+  bucket                 = module.s3_bucket.s3_bucket_id
+  key                    = "sourcedata/hr/employee/LOAD0001.csv"
+  source                 = "data/hr.csv"
+  etag                   = filemd5("data/hr.csv")
+  server_side_encryption = "AES256"
+
+  tags = local.tags
 }
 
 resource "aws_iam_role" "s3_role" {

@@ -283,6 +283,21 @@ Examples codified under the [`examples`](./examples) are intended to give users 
 
 - [Complete](./examples/complete)
 
+## Security & Compliance [<img src="https://raw.githubusercontent.com/clowdhaus/terraform-aws-dms/main/.github/images/bridgecrew.svg" width="250" align="right" />](https://bridgecrew.io/)
+
+Security scanning results provided by Bridgecrew. Bridgecrew is the leading fully hosted, cloud-native solution providing continuous Terraform security and compliance.
+
+| Benchmark | Description |
+|--------|---------------|
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/general)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=INFRASTRUCTURE+SECURITY) | Infrastructure Security Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/cis_aws)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=CIS+AWS+V1.2) | Center for Internet Security, AWS Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/pci_dss_v321)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=PCI-DSS+V3.2.1) | Payment Card Industry Data Security Standards Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/nist)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=NIST-800-53) | National Institute of Standards and Technology Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/iso)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=ISO27001) | Information Security Management System, ISO/IEC 27001 Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/soc2)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=SOC2) | Service Organization Control 2 Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/hipaa)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=HIPAA) | Health Insurance Portability and Accountability Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/fedramp_moderate)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=FEDRAMP+%28MODERATE%29) | FedRAMP Moderate Impact Level |
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
