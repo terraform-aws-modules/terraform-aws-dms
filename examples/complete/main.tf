@@ -9,6 +9,12 @@ locals {
   db_name     = "example"
   db_username = "example"
 
+  # MSK
+  sasl_scram_credentials = {
+    username = local.name
+    password = "password123!" # do better!
+  }
+
   # aws dms describe-event-categories
   replication_instance_event_categories = ["failure", "creation", "deletion", "maintenance", "failover", "low storage", "configuration change"]
   replication_task_event_categories     = ["failure", "state change", "creation", "deletion", "configuration change"]
@@ -28,6 +34,10 @@ data "aws_caller_identity" "current" {}
 ################################################################################
 # Supporting Resources
 ################################################################################
+
+resource "random_pet" "this" {
+  length = 2
+}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -121,8 +131,8 @@ module "security_group" {
   for_each = {
     postgresql-source    = ["postgresql-tcp"]
     mysql-destination    = ["mysql-tcp"]
-    replication-instance = ["postgresql-tcp", "mysql-tcp"]
-    kafka-destination    = ["kafka-broker-tcp"]
+    replication-instance = ["postgresql-tcp", "mysql-tcp", "kafka-broker-tls-tcp"]
+    kafka-destination    = ["kafka-broker-tls-tcp"]
   }
 
   name        = "${local.name}-${each.key}"
@@ -284,29 +294,73 @@ resource "aws_iam_role" "s3_role" {
   tags = local.tags
 }
 
-# # TODO - coming soon after additional attributes are added
-# module "msk_cluster" {
-#   source  = "clowdhaus/msk-kafka-cluster/aws"
-#   version = "~> 1.0"
+module "msk_cluster" {
+  source  = "clowdhaus/msk-kafka-cluster/aws"
+  version = "~> 1.0"
 
-#   name                   = local.name
-#   kafka_version          = "2.8.0"
-#   number_of_broker_nodes = 3
+  name                   = local.name
+  kafka_version          = "2.8.0"
+  number_of_broker_nodes = 3
 
-#   broker_node_client_subnets  = module.vpc.private_subnets
-#   broker_node_ebs_volume_size = 20
-#   broker_node_instance_type   = "kafka.t3.small"
-#   broker_node_security_groups = [module.security_group.security_group_id]
+  broker_node_client_subnets  = module.vpc.private_subnets
+  broker_node_ebs_volume_size = 20
+  broker_node_instance_type   = "kafka.t3.small"
+  broker_node_security_groups = [module.security_group["kafka-destination"].security_group_id]
 
-#   configuration_name        = "${local.name}-configuration"
-#   configuration_description = "Complete ${local.name} configuration"
-#   configuration_server_properties = {
-#     "auto.create.topics.enable" = true
-#     "delete.topic.enable"       = true
-#   }
+  encryption_in_transit_client_broker = "TLS"
+  encryption_in_transit_in_cluster    = true
 
-#   tags = local.tags
-# }
+  configuration_name        = "${local.name}-configuration"
+  configuration_description = "Complete ${local.name} configuration"
+  configuration_server_properties = {
+    "auto.create.topics.enable" = true
+    "delete.topic.enable"       = true
+  }
+
+  client_authentication_sasl_scram         = true
+  create_scram_secret_association          = true
+  scram_secret_association_secret_arn_list = [aws_secretsmanager_secret.msk.arn]
+
+  tags = local.tags
+}
+
+resource "aws_kms_key" "msk" {
+  description         = "KMS CMK for ${local.name}"
+  enable_key_rotation = true
+
+  tags = local.tags
+}
+
+resource "aws_secretsmanager_secret" "msk" {
+  name        = "AmazonMSK_${local.name}_${random_pet.this.id}"
+  description = "Secret for ${local.name}"
+  kms_key_id  = aws_kms_key.msk.key_id
+
+  tags = local.tags
+}
+
+resource "aws_secretsmanager_secret_version" "msk" {
+  secret_id     = aws_secretsmanager_secret.msk.id
+  secret_string = jsonencode(local.sasl_scram_credentials)
+}
+
+resource "aws_secretsmanager_secret_policy" "msk" {
+  secret_arn = aws_secretsmanager_secret.msk.arn
+  policy     = <<-POLICY
+  {
+    "Version" : "2012-10-17",
+    "Statement" : [ {
+      "Sid": "AWSKafkaResourcePolicy",
+      "Effect" : "Allow",
+      "Principal" : {
+        "Service" : "kafka.amazonaws.com"
+      },
+      "Action" : "secretsmanager:getSecretValue",
+      "Resource" : "${aws_secretsmanager_secret.msk.arn}"
+    } ]
+  }
+  POLICY
+}
 
 ################################################################################
 # DMS Module
@@ -420,6 +474,26 @@ module "dms_aurora_postgresql_aurora_mysql" {
       ssl_mode                    = "none"
       tags                        = { EndpointType = "mysql-destination" }
     }
+
+    kafka-destination = {
+      endpoint_id   = "${local.name}-kafka-destination"
+      endpoint_type = "target"
+      engine_name   = "kafka"
+      ssl_mode      = "none"
+
+      kafka_settings = {
+        broker                  = module.msk_cluster.bootstrap_brokers
+        include_control_details = true
+        include_null_and_empty  = true
+        message_format          = "JSON"
+        sasl_password           = local.sasl_scram_credentials["password"]
+        sasl_username           = local.sasl_scram_credentials["username"]
+        security_protocol       = "sasl-ssl"
+        topic                   = "kafka-destination-topic"
+      }
+
+      tags = { EndpointType = "kakfa-destination" }
+    }
   }
 
   replication_tasks = {
@@ -440,21 +514,15 @@ module "dms_aurora_postgresql_aurora_mysql" {
       target_endpoint_key       = "mysql-destination"
       tags                      = { Task = "PostgreSQL-to-MySQL" }
     }
-
-    # # TODO - coming soon after additional attributes are added
-    # kafka-destination = {
-    #   endpoint_id   = "${local.name}-kafka-destination"
-    #   endpoint_type = "target"
-    #   engine_name   = "kafka"
-    #   ssl_mode      = "none"
-
-    #   kafka_settings = {
-    #     broker = module.msk_cluster.bootstrap_brokers
-    #     topic  = local.name
-    #   }
-
-    #   tags = { EndpointType = "kafka-destination" }
-    # }
+    postgresql_kafka = {
+      replication_task_id       = "${local.name}-postgresql-to-kafka"
+      migration_type            = "full-load-and-cdc"
+      replication_task_settings = file("configs/task_settings.json")
+      table_mappings            = file("configs/kafka_mappings.json")
+      source_endpoint_key       = "postgresql-source"
+      target_endpoint_key       = "kafka-destination"
+      tags                      = { Task = "PostgreSQL-to-Kafka" }
+    }
   }
 
   event_subscriptions = {

@@ -170,8 +170,24 @@ resource "aws_dms_endpoint" "this" {
   dynamic "kafka_settings" {
     for_each = try(each.value.kafka_settings, null) != null ? [each.value.kafka_settings] : []
     content {
-      broker = kafka_settings.value.broker
-      topic  = lookup(kafka_settings.value, "topic", null)
+      broker                         = kafka_settings.value.broker
+      include_control_details        = lookup(kafka_settings.value, "include_control_details", null)
+      include_null_and_empty         = lookup(kafka_settings.value, "include_null_and_empty", null)
+      include_partition_value        = lookup(kafka_settings.value, "include_partition_value", null)
+      include_table_alter_operations = lookup(kafka_settings.value, "include_table_alter_operations", null)
+      include_transaction_details    = lookup(kafka_settings.value, "include_transaction_details", null)
+      message_format                 = lookup(kafka_settings.value, "message_format", null)
+      message_max_bytes              = lookup(kafka_settings.value, "message_max_bytes", null)
+      no_hex_prefix                  = lookup(kafka_settings.value, "no_hex_prefix", null)
+      partition_include_schema_table = lookup(kafka_settings.value, "partition_include_schema_table", null)
+      sasl_password                  = lookup(kafka_settings.value, "sasl_password", null)
+      sasl_username                  = lookup(kafka_settings.value, "sasl_username", null)
+      security_protocol              = lookup(kafka_settings.value, "security_protocol", null)
+      ssl_ca_certificate_arn         = lookup(kafka_settings.value, "ssl_ca_certificate_arn", null)
+      ssl_client_certificate_arn     = lookup(kafka_settings.value, "ssl_client_certificate_arn", null)
+      ssl_client_key_arn             = lookup(kafka_settings.value, "ssl_client_key_arn", null)
+      ssl_client_key_password        = lookup(kafka_settings.value, "ssl_client_key_password", null)
+      topic                          = lookup(kafka_settings.value, "topic", null)
     }
   }
 
@@ -229,6 +245,7 @@ resource "aws_dms_endpoint" "this" {
 resource "aws_dms_replication_task" "this" {
   for_each = var.replication_tasks
 
+  cdc_start_position        = lookup(each.value, "cdc_start_position", null)
   cdc_start_time            = lookup(each.value, "cdc_start_time", null)
   migration_type            = each.value.migration_type
   replication_instance_arn  = aws_dms_replication_instance.this[0].replication_instance_arn
