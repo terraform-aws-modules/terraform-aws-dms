@@ -41,7 +41,7 @@ resource "random_pet" "this" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 3"
+  version = "~> 3.0"
 
   name = local.name
   cidr = "10.99.0.0/18"
@@ -76,7 +76,7 @@ module "vpc" {
 
 module "vpc_endpoints" {
   source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
-  version = "~> 3"
+  version = "~> 3.0"
 
   vpc_id             = module.vpc.vpc_id
   security_group_ids = [module.vpc_endpoint_security_group.security_group_id]
@@ -101,7 +101,7 @@ module "vpc_endpoints" {
 
 module "vpc_endpoint_security_group" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4"
+  version = "~> 4.0"
 
   name        = "${local.name}-vpc-endpoint"
   description = "Security group for VPC endpoints"
@@ -125,7 +125,7 @@ module "vpc_endpoint_security_group" {
 
 module "security_group" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4"
+  version = "~> 4.0"
 
   # Creates multiple
   for_each = {
@@ -168,7 +168,7 @@ resource "aws_rds_cluster_parameter_group" "postgresql" {
 
 module "rds_aurora" {
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "~> 5"
+  version = "~> 6.0"
 
   # Creates multiple
   for_each = {
@@ -186,13 +186,13 @@ module "rds_aurora" {
 
   name              = "${local.name}-${each.key}"
   database_name     = local.db_name
-  username          = local.db_username
+  master_username   = local.db_username
   apply_immediately = true
 
   engine                          = each.value.engine
   engine_version                  = each.value.engine_version
-  replica_count                   = 1
-  instance_type                   = "db.t3.medium"
+  instance_class                  = "db.t3.medium"
+  instances                       = { 1 = {}, 2 = {} }
   storage_encrypted               = true
   skip_final_snapshot             = true
   db_cluster_parameter_group_name = each.key == "postgresql-source" ? aws_rds_cluster_parameter_group.postgresql.id : null
@@ -204,6 +204,7 @@ module "rds_aurora" {
   vpc_id                 = module.vpc.vpc_id
   subnets                = module.vpc.database_subnets
   db_subnet_group_name   = module.vpc.database_subnet_group_name
+  create_db_subnet_group = false
   create_security_group  = false
   vpc_security_group_ids = [module.security_group[each.key].security_group_id]
 
@@ -219,7 +220,7 @@ resource "aws_sns_topic" "example" {
 
 module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "~> 2"
+  version = "~> 2.0"
 
   bucket = "${local.name}-s3-${local.bucket_postfix}"
 
@@ -440,9 +441,9 @@ module "dms_aurora_postgresql_aurora_mysql" {
       engine_name                 = "aurora-postgresql"
       extra_connection_attributes = "heartbeatFrequency=1;"
       username                    = local.db_username
-      password                    = module.rds_aurora["postgresql-source"].rds_cluster_master_password
+      password                    = module.rds_aurora["postgresql-source"].cluster_master_password
       port                        = 5432
-      server_name                 = module.rds_aurora["postgresql-source"].rds_cluster_endpoint
+      server_name                 = module.rds_aurora["postgresql-source"].cluster_endpoint
       ssl_mode                    = "none"
       tags                        = { EndpointType = "postgresql-destination" }
     }
@@ -454,9 +455,9 @@ module "dms_aurora_postgresql_aurora_mysql" {
       engine_name                 = "aurora-postgresql"
       extra_connection_attributes = "heartbeatFrequency=1;"
       username                    = local.db_username
-      password                    = module.rds_aurora["postgresql-source"].rds_cluster_master_password
+      password                    = module.rds_aurora["postgresql-source"].cluster_master_password
       port                        = 5432
-      server_name                 = module.rds_aurora["postgresql-source"].rds_cluster_endpoint
+      server_name                 = module.rds_aurora["postgresql-source"].cluster_endpoint
       ssl_mode                    = "none"
       tags                        = { EndpointType = "postgresql-source" }
     }
@@ -468,9 +469,9 @@ module "dms_aurora_postgresql_aurora_mysql" {
       engine_name                 = "aurora"
       extra_connection_attributes = ""
       username                    = local.db_username
-      password                    = module.rds_aurora["mysql-destination"].rds_cluster_master_password
+      password                    = module.rds_aurora["mysql-destination"].cluster_master_password
       port                        = 3306
-      server_name                 = module.rds_aurora["mysql-destination"].rds_cluster_endpoint
+      server_name                 = module.rds_aurora["mysql-destination"].cluster_endpoint
       ssl_mode                    = "none"
       tags                        = { EndpointType = "mysql-destination" }
     }
