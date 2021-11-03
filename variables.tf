@@ -29,6 +29,12 @@ variable "iam_role_tags" {
   default     = {}
 }
 
+variable "enable_redshift_target_permissions" {
+  description = "Determines whether `redshift.amazonaws.com` is permitted access to assume the `dms-access-for-endpoint` role"
+  type        = bool
+  default     = false
+}
+
 # Subnet group
 variable "create_repl_subnet_group" {
   description = "Determines whether the replication subnet group will be created"
