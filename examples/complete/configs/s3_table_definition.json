@@ -1,0 +1,35 @@
+{
+  "TableCount": "1",
+  "Tables": [{
+    "TableName": "employee",
+    "TablePath": "hr/employee/",
+    "TableOwner": "hr",
+    "TableColumns": [{
+        "ColumnName": "Id",
+        "ColumnType": "INT8",
+        "ColumnNullable": "false",
+        "ColumnIsPk": "true"
+      },
+      {
+        "ColumnName": "LastName",
+        "ColumnType": "STRING",
+        "ColumnLength": "20"
+      },
+      {
+        "ColumnName": "FirstName",
+        "ColumnType": "STRING",
+        "ColumnLength": "30"
+      },
+      {
+        "ColumnName": "HireDate",
+        "ColumnType": "DATETIME"
+      },
+      {
+        "ColumnName": "OfficeLocation",
+        "ColumnType": "STRING",
+        "ColumnLength": "20"
+      }
+    ],
+    "TableColumnsTotal": "5"
+  }]
+}

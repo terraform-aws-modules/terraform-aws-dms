@@ -100,15 +100,15 @@ module "database_migration_service" {
 
 Within DMS you can have multiple combinations of resources depending on your use case. For example (not an exhaustive list of possible combinations):
 #### Simple
-  - One source endpdoint
+  - One source endpoint
   - One target/destination endpoint
   - One replication task
-  - Two event subcriptions
+  - Two event subscriptions
     - Replication instance event subscription
     - Replication task event subscriptions
 
 <p align="center">
-  <img src=".github/images/dms_simple.png" alt="DMS Simple" width="100%">
+  <img src="https://raw.githubusercontent.com/clowdhaus/terraform-aws-dms/main/.github/images/dms_simple.png" alt="DMS Simple" width="100%">
 </p>
 
 #### Multiple endpoints, multiple tasks
@@ -120,7 +120,7 @@ Within DMS you can have multiple combinations of resources depending on your use
     - Replication task event subscription for each task listed above
 
 <p align="center">
-  <img src=".github/images/dms_complex.png" alt="DMS Complex" width="100%">
+  <img src="https://raw.githubusercontent.com/clowdhaus/terraform-aws-dms/main/.github/images/dms_complex.png" alt="DMS Complex" width="100%">
 </p>
 
 In order to accommodate a flexible, multi-resource combinatorial module, keys and maps are used for cross-referencing resources created within the module.
@@ -199,7 +199,7 @@ Continuing the same lookup patter, to create event subscriptions, you simply ref
 Tasks are the "jobs" that perform the necessary actions of migrating from `source` to `target`, including any transformations and/or mappings of the data in transit. Tasks are largely controlled by [task settings](http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Tasks.CustomizingTasks.TaskSettings.html) that are defined in a JSON document.
 
 <p align="center">
-  <img src=".github/images/replication_task.png" alt="Replication Task" width="100%">
+  <img src="https://raw.githubusercontent.com/clowdhaus/terraform-aws-dms/main/.github/images/replication_task.png" alt="Replication Task" width="100%">
 </p>
 
 #### [Example task settings JSON document](https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Tasks.CustomizingTasks.TaskSettings.Saving.html):
@@ -283,6 +283,21 @@ Examples codified under the [`examples`](./examples) are intended to give users 
 
 - [Complete](./examples/complete)
 
+## Security & Compliance [<img src="https://raw.githubusercontent.com/clowdhaus/terraform-aws-dms/main/.github/images/bridgecrew.svg" width="250" align="right" />](https://bridgecrew.io/)
+
+Security scanning results provided by Bridgecrew. Bridgecrew is the leading fully hosted, cloud-native solution providing continuous Terraform security and compliance.
+
+| Benchmark | Description |
+|--------|---------------|
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/general)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=INFRASTRUCTURE+SECURITY) | Infrastructure Security Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/cis_aws)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=CIS+AWS+V1.2) | Center for Internet Security, AWS Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/pci_dss_v321)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=PCI-DSS+V3.2.1) | Payment Card Industry Data Security Standards Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/nist)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=NIST-800-53) | National Institute of Standards and Technology Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/iso)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=ISO27001) | Information Security Management System, ISO/IEC 27001 Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/soc2)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=SOC2) | Service Organization Control 2 Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/hipaa)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=HIPAA) | Health Insurance Portability and Accountability Compliance |
+| [![Infrastructure Tests](https://www.bridgecrew.cloud/badges/github/clowdhaus/terraform-aws-dms/fedramp_moderate)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=clowdhaus%2Fterraform-aws-dms&benchmark=FEDRAMP+%28MODERATE%29) | FedRAMP Moderate Impact Level |
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
@@ -325,7 +340,7 @@ No modules.
 | <a name="input_create"></a> [create](#input\_create) | Determines whether resources will be created | `bool` | `true` | no |
 | <a name="input_create_iam_roles"></a> [create\_iam\_roles](#input\_create\_iam\_roles) | Determines whether the required [DMS IAM resources](https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Security.html#CHAP_Security.APIRole) will be created | `bool` | `true` | no |
 | <a name="input_create_repl_subnet_group"></a> [create\_repl\_subnet\_group](#input\_create\_repl\_subnet\_group) | Determines whether the replication subnet group will be created | `bool` | `true` | no |
-| <a name="input_endpoints"></a> [endpoints](#input\_endpoints) | Map of objects that define the endpoints to be created | `map(any)` | `{}` | no |
+| <a name="input_endpoints"></a> [endpoints](#input\_endpoints) | Map of objects that define the endpoints to be created | `any` | `{}` | no |
 | <a name="input_event_subscription_timeouts"></a> [event\_subscription\_timeouts](#input\_event\_subscription\_timeouts) | A map of timeouts for event subscription create/update/delete operations | `map(string)` | `{}` | no |
 | <a name="input_event_subscriptions"></a> [event\_subscriptions](#input\_event\_subscriptions) | Map of objects that define the event subscriptions to be created | `any` | `{}` | no |
 | <a name="input_iam_role_permissions_boundary"></a> [iam\_role\_permissions\_boundary](#input\_iam\_role\_permissions\_boundary) | ARN of the policy that is used to set the permissions boundary for the role | `string` | `null` | no |
@@ -350,7 +365,7 @@ No modules.
 | <a name="input_repl_subnet_group_name"></a> [repl\_subnet\_group\_name](#input\_repl\_subnet\_group\_name) | The name for the replication subnet group. Stored as a lowercase string, must contain no more than 255 alphanumeric characters, periods, spaces, underscores, or hyphens | `string` | `null` | no |
 | <a name="input_repl_subnet_group_subnet_ids"></a> [repl\_subnet\_group\_subnet\_ids](#input\_repl\_subnet\_group\_subnet\_ids) | A list of the EC2 subnet IDs for the subnet group | `list(string)` | `[]` | no |
 | <a name="input_repl_subnet_group_tags"></a> [repl\_subnet\_group\_tags](#input\_repl\_subnet\_group\_tags) | A map of additional tags to apply to the replication subnet group | `map(string)` | `{}` | no |
-| <a name="input_replication_tasks"></a> [replication\_tasks](#input\_replication\_tasks) | Map of objects that define the replication tasks to be created | `map(any)` | `{}` | no |
+| <a name="input_replication_tasks"></a> [replication\_tasks](#input\_replication\_tasks) | Map of objects that define the replication tasks to be created | `any` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to use on all resources | `map(string)` | `{}` | no |
 
 ## Outputs
