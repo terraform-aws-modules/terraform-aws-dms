@@ -25,6 +25,21 @@ data "aws_iam_policy_document" "dms_assume_role" {
   }
 }
 
+data "aws_iam_policy_document" "dms_assume_role_redshift" {
+  count = var.create && var.create_iam_roles ? 1 : 0
+
+  source_json = data.aws_iam_policy_document.dms_assume_role[0].json
+
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      identifiers = ["redshift.amazonaws.com"]
+      type        = "Service"
+    }
+  }
+}
+
 # DMS Endpoint
 resource "aws_iam_role" "dms_access_for_endpoint" {
   count = var.create && var.create_iam_roles ? 1 : 0
@@ -32,7 +47,7 @@ resource "aws_iam_role" "dms_access_for_endpoint" {
   name                  = "dms-access-for-endpoint"
   description           = "DMS IAM role for endpoint access permissions"
   permissions_boundary  = var.iam_role_permissions_boundary
-  assume_role_policy    = data.aws_iam_policy_document.dms_assume_role[0].json
+  assume_role_policy    = var.enable_redshift_target_permissions ? data.aws_iam_policy_document.dms_assume_role_redshift[0].json : data.aws_iam_policy_document.dms_assume_role[0].json
   managed_policy_arns   = ["arn:${local.partition}:iam::aws:policy/service-role/AmazonDMSRedshiftS3Role"]
   force_detach_policies = true
 

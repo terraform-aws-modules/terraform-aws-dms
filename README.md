@@ -330,6 +330,7 @@ No modules.
 | [aws_iam_role.dms_cloudwatch_logs_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.dms_vpc_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_policy_document.dms_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.dms_assume_role_redshift](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 
 ## Inputs
@@ -340,6 +341,7 @@ No modules.
 | <a name="input_create"></a> [create](#input\_create) | Determines whether resources will be created | `bool` | `true` | no |
 | <a name="input_create_iam_roles"></a> [create\_iam\_roles](#input\_create\_iam\_roles) | Determines whether the required [DMS IAM resources](https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Security.html#CHAP_Security.APIRole) will be created | `bool` | `true` | no |
 | <a name="input_create_repl_subnet_group"></a> [create\_repl\_subnet\_group](#input\_create\_repl\_subnet\_group) | Determines whether the replication subnet group will be created | `bool` | `true` | no |
+| <a name="input_enable_redshift_target_permissions"></a> [enable\_redshift\_target\_permissions](#input\_enable\_redshift\_target\_permissions) | Determines whether `redshift.amazonaws.com` is permitted access to assume the `dms-access-for-endpoint` role | `bool` | `false` | no |
 | <a name="input_endpoints"></a> [endpoints](#input\_endpoints) | Map of objects that define the endpoints to be created | `any` | `{}` | no |
 | <a name="input_event_subscription_timeouts"></a> [event\_subscription\_timeouts](#input\_event\_subscription\_timeouts) | A map of timeouts for event subscription create/update/delete operations | `map(string)` | `{}` | no |
 | <a name="input_event_subscriptions"></a> [event\_subscriptions](#input\_event\_subscriptions) | Map of objects that define the event subscriptions to be created | `any` | `{}` | no |
