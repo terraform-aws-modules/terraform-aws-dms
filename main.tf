@@ -157,6 +157,24 @@ resource "aws_dms_replication_instance" "this" {
 # Endpoint
 ################################################################################
 
+data "aws_secretsmanager_secret" "this" {
+  for_each = {
+    for endpoint, config in var.endpoints : endpoint => config
+    if lookup(config, "password_secret_path", null) != null
+  }
+
+  name = each.value.password_secret_path
+}
+
+data "aws_secretsmanager_secret_version" "this" {
+  for_each = {
+    for endpoint, config in var.endpoints : endpoint => config
+    if lookup(config, "password_secret_path", null) != null
+  }
+
+  secret_id = data.aws_secretsmanager_secret.this[each.key].id
+}
+
 resource "aws_dms_endpoint" "this" {
   for_each = var.endpoints
 
@@ -167,7 +185,7 @@ resource "aws_dms_endpoint" "this" {
   engine_name                 = each.value.engine_name
   extra_connection_attributes = lookup(each.value, "extra_connection_attributes", null)
   kms_key_arn                 = lookup(each.value, "kms_key_arn", null)
-  password                    = lookup(each.value, "password", null)
+  password                    = lookup(each.value, "password_secret_path", null) != null ? data.aws_secretsmanager_secret_version.this[each.key].secret_string : lookup(each.value, "password", null)
   port                        = lookup(each.value, "port", null)
   server_name                 = lookup(each.value, "server_name", null)
   service_access_role         = lookup(each.value, "service_access_role", null)

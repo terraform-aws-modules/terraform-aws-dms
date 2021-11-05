@@ -421,6 +421,19 @@ module "dms_aurora_postgresql_aurora_mysql" {
       ssl_mode                    = "none"
       tags                        = { EndpointType = "mysql-destination" }
     }
+
+    mssql-destination = {
+      database_name        = local.db_name
+      endpoint_id          = "${local.name}-mssql-destination"
+      endpoint_type        = "target"
+      engine_name          = "sqlserver"
+      username             = local.db_username
+      password_secret_path = "path/to/secret/manager/secret"
+      port                 = 1433
+      server_name          = "existing-db.address.us-east-1.rds.amazonaws.com"
+      ssl_mode             = "require"
+      tags                 = { EndpointType = "mssql-destination" }
+    }
   }
 
   replication_tasks = {
