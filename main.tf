@@ -109,6 +109,10 @@ resource "aws_dms_replication_subnet_group" "this" {
   subnet_ids                           = var.repl_subnet_group_subnet_ids
 
   tags = merge(var.tags, var.repl_subnet_group_tags)
+
+  depends_on = [
+    aws_iam_role.dms_vpc_role
+  ]
 }
 
 ################################################################################
