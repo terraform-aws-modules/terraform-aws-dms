@@ -111,9 +111,7 @@ resource "aws_dms_replication_subnet_group" "this" {
   tags = merge(var.tags, var.repl_subnet_group_tags)
 
   depends_on = [
-    aws_iam_role.dms_access_for_endpoint,
-    aws_iam_role.dms_cloudwatch_logs_role,
-    aws_iam_role.dms_vpc_role,
+    aws_iam_role.dms_vpc_role
   ]
 }
 
