@@ -1,6 +1,6 @@
 locals {
   subnet_group_id = var.create && var.create_repl_subnet_group ? aws_dms_replication_subnet_group.this[0].id : var.repl_instance_subnet_group_id
-  partition = data.aws_partition.current.partition
+  partition       = data.aws_partition.current.partition
 }
 
 data "aws_partition" "current" {}
@@ -238,7 +238,7 @@ resource "aws_dms_replication_task" "this" {
   target_endpoint_arn       = aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn
 
   tags = merge(var.tags, lookup(each.value, "tags", {}))
- 
+
   lifecycle {
     ignore_changes = [
       replication_task_settings
