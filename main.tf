@@ -189,7 +189,7 @@ resource "aws_dms_endpoint" "this" {
   dynamic "kafka_settings" {
     for_each = can(each.value["kafka_settings"]) ? [each.value.kafka_settings] : []
     content {
-      broker                         = lookup(kafka_settings.value, "broker", "foo")
+      broker                         = kafka_settings.value.broker
       include_control_details        = lookup(kafka_settings.value, "include_control_details", null)
       include_null_and_empty         = lookup(kafka_settings.value, "include_null_and_empty", null)
       include_partition_value        = lookup(kafka_settings.value, "include_partition_value", null)

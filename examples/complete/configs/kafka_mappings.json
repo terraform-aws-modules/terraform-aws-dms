@@ -5,8 +5,8 @@
       "rule-name": "1",
       "rule-action": "include",
       "object-locator": {
-        "schema-name": "%",
-        "table-name": "%"
+        "schema-name": "hr",
+        "table-name": "employee"
       }
     },
     {
@@ -15,7 +15,7 @@
       "rule-name": "2",
       "rule-action": "map-record-to-record",
       "object-locator": {
-        "schema-name": "%",
+        "schema-name": "hr",
         "table-name": "employee"
       }
     }

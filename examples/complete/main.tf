@@ -86,7 +86,7 @@ module "vpc_endpoints" {
     dms = {
       service             = "dms"
       private_dns_enabled = true
-      subnet_ids          = module.vpc.database_subnets
+      subnet_ids          = [element(module.vpc.database_subnets, 0), element(module.vpc.database_subnets, 1)] # careful on which AZs support DMS VPC endpoint
       tags                = { Name = "dms-vpc-endpoint" }
     }
     s3 = {
@@ -323,6 +323,8 @@ module "msk_cluster" {
   create_scram_secret_association          = true
   scram_secret_association_secret_arn_list = [aws_secretsmanager_secret.msk.arn]
 
+  depends_on = [aws_secretsmanager_secret_version.msk]
+
   tags = local.tags
 }
 
@@ -485,7 +487,7 @@ module "dms_aurora_postgresql_aurora_mysql" {
 
       kafka_settings = {
         # this https://github.com/hashicorp/terraform/issues/4149 requires the MSK cluster exists before applying
-        broker                  = module.msk_cluster.bootstrap_brokers
+        broker                  = join(",", module.msk_cluster.bootstrap_brokers)
         include_control_details = true
         include_null_and_empty  = true
         message_format          = "json"
