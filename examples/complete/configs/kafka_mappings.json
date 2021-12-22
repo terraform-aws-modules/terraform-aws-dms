@@ -1,0 +1,23 @@
+{
+  "rules": [{
+      "rule-type": "selection",
+      "rule-id": "1",
+      "rule-name": "1",
+      "rule-action": "include",
+      "object-locator": {
+        "schema-name": "hr",
+        "table-name": "employee"
+      }
+    },
+    {
+      "rule-type": "object-mapping",
+      "rule-id": "2",
+      "rule-name": "2",
+      "rule-action": "map-record-to-record",
+      "object-locator": {
+        "schema-name": "hr",
+        "table-name": "employee"
+      }
+    }
+  ]
+}
