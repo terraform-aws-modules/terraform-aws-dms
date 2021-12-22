@@ -214,9 +214,15 @@ resource "aws_dms_endpoint" "this" {
   dynamic "kinesis_settings" {
     for_each = can(each.value["kinesis_settings"]) ? [each.value.kinesis_settings] : []
     content {
-      message_format          = lookup(kinesis_settings.value, "message_format", null)
-      service_access_role_arn = lookup(kinesis_settings.value, "service_access_role_arn", null)
-      stream_arn              = lookup(kinesis_settings.value, "stream_arn", null)
+      include_control_details        = lookup(kinesis_settings.value, "include_control_details", null)
+      include_null_and_empty         = lookup(kinesis_settings.value, "include_null_and_empty", null)
+      include_partition_value        = lookup(kinesis_settings.value, "include_partition_value", null)
+      include_table_alter_operations = lookup(kinesis_settings.value, "include_table_alter_operations", null)
+      include_transaction_details    = lookup(kinesis_settings.value, "include_transaction_details", null)
+      message_format                 = lookup(kinesis_settings.value, "message_format", null)
+      partition_include_schema_table = lookup(kinesis_settings.value, "partition_include_schema_table", null)
+      service_access_role_arn        = lookup(kinesis_settings.value, "service_access_role_arn", null)
+      stream_arn                     = lookup(kinesis_settings.value, "stream_arn", null)
     }
   }
 
