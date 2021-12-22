@@ -39,7 +39,7 @@ module "database_migration_service" {
       username                    = "postgresqlUser"
       password                    = "youShouldPickABetterPassword123!"
       port                        = 5432
-      server_name                 = "dms-example-source.cluster-abcdefghijkl.us-east-1.rds.amazonaws.com"
+      server_name                 = "dms-ex-src.cluster-abcdefghijkl.us-east-1.rds.amazonaws.com"
       ssl_mode                    = "none"
       tags                        = { EndpointType = "source" }
     }
@@ -52,7 +52,7 @@ module "database_migration_service" {
       username      = "mysqlUser"
       password      = "passwordsDoNotNeedToMatch789?"
       port          = 3306
-      server_name   = "dms-example-destination.cluster-abcdefghijkl.us-east-1.rds.amazonaws.com"
+      server_name   = "dms-ex-dest.cluster-abcdefghijkl.us-east-1.rds.amazonaws.com"
       ssl_mode      = "none"
       tags          = { EndpointType = "destination" }
     }
@@ -76,16 +76,30 @@ module "database_migration_service" {
       enabled                          = true
       instance_event_subscription_keys = ["example"]
       source_type                      = "replication-instance"
-      event_categories                 = ["failure", "creation", "deletion", "maintenance", "failover", "low storage", "configuration change"]
       sns_topic_arn                    = "arn:aws:sns:us-east-1:012345678910:example-topic"
+      event_categories                 = [
+        "failure",
+        "creation",
+        "deletion",
+        "maintenance",
+        "failover",
+        "low storage",
+        "configuration change"
+      ]
     }
     task = {
       name                         = "task-events"
       enabled                      = true
       task_event_subscription_keys = ["cdc_ex"]
       source_type                  = "replication-task"
-      event_categories             = ["failure", "state change", "creation", "deletion", "configuration change"]
       sns_topic_arn                = "arn:aws:sns:us-east-1:012345678910:example-topic"
+      event_categories             = [
+        "failure",
+        "state change",
+        "creation",
+        "deletion",
+        "configuration change"
+      ]
     }
   }
 
