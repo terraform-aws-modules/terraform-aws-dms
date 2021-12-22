@@ -84,6 +84,7 @@ output "replication_tasks" {
 output "endpoints" {
   description = "A map of maps containing the endpoints created and their full output of attributes and values"
   value       = aws_dms_endpoint.this
+  sensitive   = true
 }
 
 # Event Subscriptions
