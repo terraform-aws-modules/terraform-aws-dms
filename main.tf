@@ -154,7 +154,7 @@ resource "aws_dms_replication_instance" "this" {
 ################################################################################
 
 resource "aws_dms_endpoint" "this" {
-  for_each = var.endpoints
+  for_each = { for k, v in var.endpoints : k => v if var.create }
 
   certificate_arn             = try(aws_dms_certificate.this[each.value.certificate_key].certificate_arn, null)
   database_name               = lookup(each.value, "database_name", null)
@@ -172,20 +172,20 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Elasticsearch.html
   dynamic "elasticsearch_settings" {
-    for_each = try(each.value.elasticsearch_settings, null) != null ? [each.value.elasticsearch_settings] : []
+    for_each = can(each.value["elasticsearch_settings"]) ? [each.value.elasticsearch_settings] : []
     content {
-      endpoint_uri               = each.elasticsearch_settings.endpoint_uri
-      error_retry_duration       = lookup(each.elasticsearch_settings, "error_retry_duration", null)
-      full_load_error_percentage = lookup(each.elasticsearch_settings, "full_load_error_percentage", null)
-      service_access_role_arn    = lookup(each.elasticsearch_settings, "service_access_role_arn", null)
+      endpoint_uri               = elasticsearch_settings.value.endpoint_uri
+      error_retry_duration       = lookup(elasticsearch_settings.value, "error_retry_duration", null)
+      full_load_error_percentage = lookup(elasticsearch_settings.value, "full_load_error_percentage", null)
+      service_access_role_arn    = lookup(elasticsearch_settings.value, "service_access_role_arn", null)
     }
   }
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kafka.html
   dynamic "kafka_settings" {
-    for_each = { for k, v in try(each.value.kafka_settings, {}) : k => v }
+    for_each = can(each.value["kafka_settings"]) ? [each.value.kafka_settings] : []
     content {
-      broker                         = kafka_settings.value.broker
+      broker                         = lookup(kafka_settings.value, "broker", "foo")
       include_control_details        = lookup(kafka_settings.value, "include_control_details", null)
       include_null_and_empty         = lookup(kafka_settings.value, "include_null_and_empty", null)
       include_partition_value        = lookup(kafka_settings.value, "include_partition_value", null)
@@ -208,7 +208,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kinesis.html
   dynamic "kinesis_settings" {
-    for_each = try(each.value.kinesis_settings, null) != null ? [each.value.kinesis_settings] : []
+    for_each = can(each.value["kinesis_settings"]) ? [each.value.kinesis_settings] : []
     content {
       message_format          = lookup(kinesis_settings.value, "message_format", null)
       service_access_role_arn = lookup(kinesis_settings.value, "service_access_role_arn", null)
@@ -218,7 +218,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MongoDB.html
   dynamic "mongodb_settings" {
-    for_each = try(each.value.mongodb_settings, null) != null ? [each.value.mongodb_settings] : []
+    for_each = can(each.value["mongodb_settings"]) ? [each.value.mongodb_settings] : []
     content {
       auth_mechanism      = lookup(mongodb_settings.value, "auth_mechanism", null)
       auth_source         = lookup(mongodb_settings.value, "auth_source", null)
@@ -232,8 +232,7 @@ resource "aws_dms_endpoint" "this" {
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.S3.html
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.S3.html
   dynamic "s3_settings" {
-    for_each = [{ for k, v in try(each.value.s3_settings, {}) : k => v }] # if try(each.value.s3_settings, null) != null }]
-    # try(each.value.s3_settings, null) != null ? [each.value.s3_settings] : []
+    for_each = can(each.value["s3_settings"]) ? [each.value.s3_settings] : []
     content {
       bucket_folder                     = lookup(s3_settings.value, "bucket_folder", null)
       bucket_name                       = lookup(s3_settings.value, "bucket_name", null)
@@ -259,7 +258,7 @@ resource "aws_dms_endpoint" "this" {
 ################################################################################
 
 resource "aws_dms_replication_task" "this" {
-  for_each = var.replication_tasks
+  for_each = { for k, v in var.replication_tasks : k => v if var.create }
 
   cdc_start_position        = lookup(each.value, "cdc_start_position", null)
   cdc_start_time            = lookup(each.value, "cdc_start_time", null)
@@ -279,7 +278,7 @@ resource "aws_dms_replication_task" "this" {
 ################################################################################
 
 resource "aws_dms_event_subscription" "this" {
-  for_each = var.event_subscriptions
+  for_each = { for k, v in var.event_subscriptions : k => v if var.create }
 
   name             = each.value.name
   enabled          = lookup(each.value, "enabled", null)
@@ -309,7 +308,7 @@ resource "aws_dms_event_subscription" "this" {
 ################################################################################
 
 resource "aws_dms_certificate" "this" {
-  for_each = var.certificates
+  for_each = { for k, v in var.certificates : k => v if var.create }
 
   certificate_id     = each.value.certificate_id
   certificate_pem    = lookup(each.value, "certificate_pem", null)

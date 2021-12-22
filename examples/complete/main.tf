@@ -20,6 +20,7 @@ locals {
   replication_task_event_categories     = ["failure", "state change", "creation", "deletion", "configuration change"]
 
   bucket_postfix = "${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
+  bucket_name    = "${local.name}-s3-${local.bucket_postfix}"
 
   tags = {
     Example     = local.name
@@ -222,7 +223,7 @@ module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 2.0"
 
-  bucket = "${local.name}-s3-${local.bucket_postfix}"
+  bucket = local.bucket_name
 
   attach_deny_insecure_transport_policy = true
 
@@ -424,11 +425,11 @@ module "dms_aurora_postgresql_aurora_mysql" {
 
       s3_settings = {
         bucket_folder             = "sourcedata"
-        bucket_name               = module.s3_bucket.s3_bucket_id
+        bucket_name               = local.bucket_name # to avoid https://github.com/hashicorp/terraform/issues/4149
         data_format               = "csv"
         encryption_mode           = "SSE_S3"
         external_table_definition = file("configs/s3_table_definition.json")
-        service_access_role_arn   = aws_iam_role.s3_role.arn
+        service_access_role_arn   = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/${local.name}-s3" # to avoid https://github.com/hashicorp/terraform/issues/4149
       }
 
       tags = { EndpointType = "s3-source" }
@@ -483,10 +484,11 @@ module "dms_aurora_postgresql_aurora_mysql" {
       ssl_mode      = "none"
 
       kafka_settings = {
+        # this https://github.com/hashicorp/terraform/issues/4149 requires the MSK cluster exists before applying
         broker                  = module.msk_cluster.bootstrap_brokers
         include_control_details = true
         include_null_and_empty  = true
-        message_format          = "JSON"
+        message_format          = "json"
         sasl_password           = local.sasl_scram_credentials["password"]
         sasl_username           = local.sasl_scram_credentials["username"]
         security_protocol       = "sasl-ssl"
