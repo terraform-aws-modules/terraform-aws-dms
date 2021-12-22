@@ -183,7 +183,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kafka.html
   dynamic "kafka_settings" {
-    for_each = try(each.value.kafka_settings, null) != null ? [each.value.kafka_settings] : []
+    for_each = { for k, v in try(each.value.kafka_settings, {}) : k => v }
     content {
       broker                         = kafka_settings.value.broker
       include_control_details        = lookup(kafka_settings.value, "include_control_details", null)
@@ -232,7 +232,8 @@ resource "aws_dms_endpoint" "this" {
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.S3.html
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.S3.html
   dynamic "s3_settings" {
-    for_each = try(each.value.s3_settings, null) != null ? [each.value.s3_settings] : []
+    for_each = [{ for k, v in try(each.value.s3_settings, {}) : k => v }] # if try(each.value.s3_settings, null) != null }]
+    # try(each.value.s3_settings, null) != null ? [each.value.s3_settings] : []
     content {
       bucket_folder                     = lookup(s3_settings.value, "bucket_folder", null)
       bucket_name                       = lookup(s3_settings.value, "bucket_name", null)
