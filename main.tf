@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "dms_assume_role" {
 data "aws_iam_policy_document" "dms_assume_role_redshift" {
   count = var.create && var.create_iam_roles ? 1 : 0
 
-  source_json = data.aws_iam_policy_document.dms_assume_role[0].json
+  source_policy_documents = [data.aws_iam_policy_document.dms_assume_role[0].json]
 
   statement {
     actions = ["sts:AssumeRole"]
@@ -176,7 +176,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Elasticsearch.html
   dynamic "elasticsearch_settings" {
-    for_each = can(each.value["elasticsearch_settings"]) ? [each.value.elasticsearch_settings] : []
+    for_each = try([each.value.elasticsearch_settings], [])
     content {
       endpoint_uri               = elasticsearch_settings.value.endpoint_uri
       error_retry_duration       = lookup(elasticsearch_settings.value, "error_retry_duration", null)
@@ -187,7 +187,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kafka.html
   dynamic "kafka_settings" {
-    for_each = can(each.value["kafka_settings"]) ? [each.value.kafka_settings] : []
+    for_each = try([each.value.kafka_settings], [])
     content {
       broker                         = kafka_settings.value.broker
       include_control_details        = lookup(kafka_settings.value, "include_control_details", null)
@@ -212,7 +212,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kinesis.html
   dynamic "kinesis_settings" {
-    for_each = can(each.value["kinesis_settings"]) ? [each.value.kinesis_settings] : []
+    for_each = try([each.value.kinesis_settings], [])
     content {
       include_control_details        = lookup(kinesis_settings.value, "include_control_details", null)
       include_null_and_empty         = lookup(kinesis_settings.value, "include_null_and_empty", null)
@@ -244,19 +244,42 @@ resource "aws_dms_endpoint" "this" {
   dynamic "s3_settings" {
     for_each = can(each.value["s3_settings"]) ? [each.value.s3_settings] : []
     content {
+      add_column_name                   = lookup(s3_settings.value, "add_column_name", null)
       bucket_folder                     = lookup(s3_settings.value, "bucket_folder", null)
       bucket_name                       = lookup(s3_settings.value, "bucket_name", null)
+      canned_acl_for_objects            = lookup(s3_settings.value, "canned_acl_for_objects", null)
+      cdc_inserts_and_updates           = lookup(s3_settings.value, "cdc_inserts_and_updates", null)
+      cdc_inserts_only                  = lookup(s3_settings.value, "cdc_inserts_only", null)
+      cdc_max_batch_interval            = lookup(s3_settings.value, "cdc_max_batch_interval", null)
+      cdc_min_file_size                 = lookup(s3_settings.value, "cdc_min_file_size", null)
+      cdc_path                          = lookup(s3_settings.value, "cdc_path", null)
       compression_type                  = lookup(s3_settings.value, "compression_type", null)
       csv_delimiter                     = lookup(s3_settings.value, "csv_delimiter", null)
+      csv_no_sup_value                  = lookup(s3_settings.value, "csv_no_sup_value", null)
+      csv_null_value                    = lookup(s3_settings.value, "csv_null_value", null)
       csv_row_delimiter                 = lookup(s3_settings.value, "csv_row_delimiter", null)
       data_format                       = lookup(s3_settings.value, "data_format", null)
+      data_page_size                    = lookup(s3_settings.value, "data_page_size", null)
+      date_partition_delimiter          = lookup(s3_settings.value, "date_partition_delimiter", null)
       date_partition_enabled            = lookup(s3_settings.value, "date_partition_enabled", null)
+      date_partition_sequence           = lookup(s3_settings.value, "date_partition_sequence", null)
+      dict_page_size_limit              = lookup(s3_settings.value, "dict_page_size_limit", null)
+      enable_statistics                 = lookup(s3_settings.value, "enable_statistics", null)
+      encoding_type                     = lookup(s3_settings.value, "encoding_type", null)
       encryption_mode                   = lookup(s3_settings.value, "encryption_mode", null)
       external_table_definition         = lookup(s3_settings.value, "external_table_definition", null)
+      ignore_headers_row                = lookup(s3_settings.value, "ignore_headers_row", null)
+      include_op_for_full_load          = lookup(s3_settings.value, "include_op_for_full_load", null)
+      max_file_size                     = lookup(s3_settings.value, "max_file_size", null)
       parquet_timestamp_in_millisecond  = lookup(s3_settings.value, "parquet_timestamp_in_millisecond", null)
       parquet_version                   = lookup(s3_settings.value, "parquet_version", null)
+      preserve_transactions             = lookup(s3_settings.value, "preserve_transactions", null)
+      rfc_4180                          = lookup(s3_settings.value, "rfc_4180", null)
+      row_group_length                  = lookup(s3_settings.value, "row_group_length", null)
       server_side_encryption_kms_key_id = lookup(s3_settings.value, "server_side_encryption_kms_key_id", null)
       service_access_role_arn           = lookup(s3_settings.value, "service_access_role_arn", null)
+      timestamp_column_name             = lookup(s3_settings.value, "timestamp_column_name", null)
+      use_csv_no_sup_value              = lookup(s3_settings.value, "use_csv_no_sup_value", null)
     }
   }
 

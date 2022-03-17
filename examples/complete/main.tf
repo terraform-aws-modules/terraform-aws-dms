@@ -219,32 +219,39 @@ resource "aws_sns_topic" "example" {
   tags = local.tags
 }
 
-module "s3_bucket" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "~> 2.0"
+# TODO - disabling until v4.x of provider is supported
+# module "s3_bucket" {
+#   source  = "terraform-aws-modules/s3-bucket/aws"
+#   version = "~> 2.0"
 
+#   bucket = local.bucket_name
+
+#   attach_deny_insecure_transport_policy = true
+
+#   block_public_acls       = true
+#   block_public_policy     = true
+#   ignore_public_acls      = true
+#   restrict_public_buckets = true
+
+#   server_side_encryption_configuration = {
+#     rule = {
+#       apply_server_side_encryption_by_default = {
+#         sse_algorithm = "AES256"
+#       }
+#     }
+#   }
+
+#   tags = local.tags
+# }
+
+resource "aws_s3_bucket" "example" {
   bucket = local.bucket_name
-
-  attach_deny_insecure_transport_policy = true
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-
-  server_side_encryption_configuration = {
-    rule = {
-      apply_server_side_encryption_by_default = {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
 
   tags = local.tags
 }
 
-resource "aws_s3_bucket_object" "hr_data" {
-  bucket                 = module.s3_bucket.s3_bucket_id
+resource "aws_s3_object" "hr_data" {
+  bucket                 = aws_s3_bucket.example.id
   key                    = "sourcedata/hr/employee/LOAD0001.csv"
   source                 = "data/hr.csv"
   etag                   = filemd5("data/hr.csv")
@@ -281,13 +288,13 @@ resource "aws_iam_role" "s3_role" {
           Sid      = "DMSRead"
           Action   = ["s3:GetObject"]
           Effect   = "Allow"
-          Resource = "${module.s3_bucket.s3_bucket_arn}/*"
+          Resource = "${aws_s3_bucket.example.arn}/*"
         },
         {
           Sid      = "DMSList"
           Action   = ["s3:ListBucket"]
           Effect   = "Allow"
-          Resource = module.s3_bucket.s3_bucket_arn
+          Resource = aws_s3_bucket.example.arn
         },
       ]
     })
