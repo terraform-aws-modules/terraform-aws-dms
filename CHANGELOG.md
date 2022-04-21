@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.5.1](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.5.0...v1.5.1) (2022-04-21)
+
+
+### Bug Fixes
+
+* Update documentation to remove prior notice and deprecated workflow ([#13](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/13)) ([0b928d9](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/0b928d9ee91befa31cb6f796aaf5a97c6959dd7a))
+
 ## [1.5.0](https://github.com/clowdhaus/terraform-aws-dms/compare/v1.4.0...v1.5.0) (2022-04-20)
 
 
