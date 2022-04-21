@@ -1,14 +1,5 @@
 # AWS DMS Terraform module
 
-## ⚠️ Module has moved to `terraform-aws-modules`
-
-This module has moved to the terraform-aws-modules organization. Users will need to update their module source:
-
-```diff
-- source = "clowdhaus/dms/aws"
-+ source = "terraform-aws-modules/dms/aws"
-```
-
 Terraform module which creates AWS DMS (Database Migration Service) resources.
 
 ## Usage
