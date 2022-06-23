@@ -1,7 +1,8 @@
 locals {
   subnet_group_id = var.create && var.create_repl_subnet_group ? aws_dms_replication_subnet_group.this[0].id : var.repl_instance_subnet_group_id
 
-  partition = data.aws_partition.current.partition
+  partition  = data.aws_partition.current.partition
+  dns_suffix = data.aws_partition.current.dns_suffix
 }
 
 data "aws_partition" "current" {}
@@ -19,7 +20,7 @@ data "aws_iam_policy_document" "dms_assume_role" {
     actions = ["sts:AssumeRole"]
 
     principals {
-      identifiers = ["dms.amazonaws.com"]
+      identifiers = ["dms.${local.dns_suffix}"]
       type        = "Service"
     }
   }
@@ -34,7 +35,7 @@ data "aws_iam_policy_document" "dms_assume_role_redshift" {
     actions = ["sts:AssumeRole"]
 
     principals {
-      identifiers = ["redshift.amazonaws.com"]
+      identifiers = ["redshift.${local.dns_suffix}"]
       type        = "Service"
     }
   }
@@ -176,7 +177,8 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Elasticsearch.html
   dynamic "elasticsearch_settings" {
-    for_each = try([each.value.elasticsearch_settings], [])
+    for_each = length(lookup(each.value, "elasticsearch_settings", {})) == 0 ? [] : [each.value.elasticsearch_settings]
+
     content {
       endpoint_uri               = elasticsearch_settings.value.endpoint_uri
       error_retry_duration       = lookup(elasticsearch_settings.value, "error_retry_duration", null)
@@ -187,7 +189,8 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kafka.html
   dynamic "kafka_settings" {
-    for_each = try([each.value.kafka_settings], [])
+    for_each = length(lookup(each.value, "kafka_settings", {})) == 0 ? [] : [each.value.kafka_settings]
+
     content {
       broker                         = kafka_settings.value.broker
       include_control_details        = lookup(kafka_settings.value, "include_control_details", null)
@@ -212,7 +215,8 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kinesis.html
   dynamic "kinesis_settings" {
-    for_each = try([each.value.kinesis_settings], [])
+    for_each = length(lookup(each.value, "kinesis_settings", {})) == 0 ? [] : [each.value.kinesis_settings]
+
     content {
       include_control_details        = lookup(kinesis_settings.value, "include_control_details", null)
       include_null_and_empty         = lookup(kinesis_settings.value, "include_null_and_empty", null)
@@ -228,7 +232,8 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MongoDB.html
   dynamic "mongodb_settings" {
-    for_each = can(each.value["mongodb_settings"]) ? [each.value.mongodb_settings] : []
+    for_each = length(lookup(each.value, "mongodb_settings", {})) == 0 ? [] : [each.value.mongodb_settings]
+
     content {
       auth_mechanism      = lookup(mongodb_settings.value, "auth_mechanism", null)
       auth_source         = lookup(mongodb_settings.value, "auth_source", null)
@@ -242,7 +247,8 @@ resource "aws_dms_endpoint" "this" {
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.S3.html
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.S3.html
   dynamic "s3_settings" {
-    for_each = can(each.value["s3_settings"]) ? [each.value.s3_settings] : []
+    for_each = length(lookup(each.value, "s3_settings", {})) == 0 ? [] : [each.value.s3_settings]
+
     content {
       add_column_name                   = lookup(s3_settings.value, "add_column_name", null)
       bucket_folder                     = lookup(s3_settings.value, "bucket_folder", null)
