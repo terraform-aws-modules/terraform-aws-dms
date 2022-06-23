@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.5.2](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.5.1...v1.5.2) (2022-06-23)
+
+
+### Bug Fixes
+
+* Update dynamic lookup logic to support lazy evaluation ([#19](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/19)) ([8fb0daa](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/8fb0daa718b2b346d14c314f0865b8f26bedebe0))
+
 ### [1.5.1](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.5.0...v1.5.1) (2022-04-21)
 
 
