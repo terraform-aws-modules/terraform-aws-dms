@@ -17,8 +17,6 @@ To run this example you need to execute:
 ```bash
 $ terraform init
 $ terraform plan
-# due to https://github.com/hashicorp/terraform/issues/4149
-$ terraform apply --target module.msk_cluster
 $ terraform apply
 ```
 
