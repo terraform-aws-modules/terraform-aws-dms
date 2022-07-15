@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "dms_assume_role_redshift" {
   }
 }
 
-# Time sleep to delay dependency resource creation and deletion
+# Time Sleep
 resource "time_sleep" "wait_for_dependency_resources" {
   depends_on = [
     aws_iam_role.dms_access_for_endpoint,
