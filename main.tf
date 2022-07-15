@@ -46,7 +46,7 @@ resource "time_sleep" "wait_for_dependency_resources" {
   depends_on = [
     aws_iam_role.dms_access_for_endpoint,
     aws_iam_role.dms_cloudwatch_logs_role,
-    aws_iam_role.dms_vpc_role,
+    aws_iam_role.dms_vpc_role
   ]
 
   create_duration = "10s"
