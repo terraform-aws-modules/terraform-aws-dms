@@ -41,6 +41,18 @@ data "aws_iam_policy_document" "dms_assume_role_redshift" {
   }
 }
 
+# Time sleep to delay dependency resource creation and deletion
+resource "time_sleep" "wait_for_dependency_resources" {
+  depends_on = [
+    aws_iam_role.dms_access_for_endpoint,
+    aws_iam_role.dms_cloudwatch_logs_role,
+    aws_iam_role.dms_vpc_role,
+  ]
+
+  create_duration = "10s"
+  destroy_duration = "10s"
+}
+
 # DMS Endpoint
 resource "aws_iam_role" "dms_access_for_endpoint" {
   count = var.create && var.create_iam_roles ? 1 : 0
@@ -51,11 +63,6 @@ resource "aws_iam_role" "dms_access_for_endpoint" {
   assume_role_policy    = var.enable_redshift_target_permissions ? data.aws_iam_policy_document.dms_assume_role_redshift[0].json : data.aws_iam_policy_document.dms_assume_role[0].json
   managed_policy_arns   = ["arn:${local.partition}:iam::aws:policy/service-role/AmazonDMSRedshiftS3Role"]
   force_detach_policies = true
-
-  # https://github.com/hashicorp/terraform-provider-aws/issues/11025#issuecomment-660059684
-  provisioner "local-exec" {
-    command = "sleep 10"
-  }
 
   tags = merge(var.tags, var.iam_role_tags)
 }
@@ -71,11 +78,6 @@ resource "aws_iam_role" "dms_cloudwatch_logs_role" {
   managed_policy_arns   = ["arn:${local.partition}:iam::aws:policy/service-role/AmazonDMSCloudWatchLogsRole"]
   force_detach_policies = true
 
-  # https://github.com/hashicorp/terraform-provider-aws/issues/11025#issuecomment-660059684
-  provisioner "local-exec" {
-    command = "sleep 10"
-  }
-
   tags = merge(var.tags, var.iam_role_tags)
 }
 
@@ -89,11 +91,6 @@ resource "aws_iam_role" "dms_vpc_role" {
   assume_role_policy    = data.aws_iam_policy_document.dms_assume_role[0].json
   managed_policy_arns   = ["arn:${local.partition}:iam::aws:policy/service-role/AmazonDMSVPCManagementRole"]
   force_detach_policies = true
-
-  # https://github.com/hashicorp/terraform-provider-aws/issues/11025#issuecomment-660059684
-  provisioner "local-exec" {
-    command = "sleep 10"
-  }
 
   tags = merge(var.tags, var.iam_role_tags)
 }
@@ -111,9 +108,7 @@ resource "aws_dms_replication_subnet_group" "this" {
 
   tags = merge(var.tags, var.repl_subnet_group_tags)
 
-  depends_on = [
-    aws_iam_role.dms_vpc_role
-  ]
+  depends_on = [time_sleep.wait_for_dependency_resources]
 }
 
 ################################################################################
@@ -146,12 +141,7 @@ resource "aws_dms_replication_instance" "this" {
     delete = lookup(var.repl_instance_timeouts, "delete", null)
   }
 
-  # https://github.com/hashicorp/terraform-provider-aws/issues/11025#issuecomment-660059684
-  depends_on = [
-    aws_iam_role.dms_access_for_endpoint,
-    aws_iam_role.dms_cloudwatch_logs_role,
-    aws_iam_role.dms_vpc_role,
-  ]
+  depends_on = [time_sleep.wait_for_dependency_resources]
 }
 
 ################################################################################
