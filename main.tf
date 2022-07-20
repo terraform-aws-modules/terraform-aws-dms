@@ -49,7 +49,7 @@ resource "time_sleep" "wait_for_dependency_resources" {
     aws_iam_role.dms_vpc_role
   ]
 
-  create_duration = "10s"
+  create_duration  = "10s"
   destroy_duration = "10s"
 }
 
