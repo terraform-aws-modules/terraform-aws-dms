@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.5.3](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.5.2...v1.5.3) (2022-07-25)
+
+
+### Bug Fixes
+
+* Replace local-exec sleep with time_sleep ([#22](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/22)) ([b4ace3b](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/b4ace3bd62dadc269d2a0d3c13f991596055d507))
+
 ### [1.5.2](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.5.1...v1.5.2) (2022-06-23)
 
 
