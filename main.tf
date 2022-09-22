@@ -43,6 +43,7 @@ data "aws_iam_policy_document" "dms_assume_role_redshift" {
 
 # Time Sleep
 resource "time_sleep" "wait_for_dependency_resources" {
+  count = var.create && (var.create_repl_subnet_group || var.create_repl_instance) ? 1 : 0
   depends_on = [
     aws_iam_role.dms_access_for_endpoint,
     aws_iam_role.dms_cloudwatch_logs_role,
