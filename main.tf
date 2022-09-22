@@ -116,7 +116,7 @@ resource "aws_dms_replication_subnet_group" "this" {
 ################################################################################
 
 resource "aws_dms_replication_instance" "this" {
-  count = var.create ? 1 : 0
+  count = var.create && var.create_repl_instance ? 1 : 0
 
   allocated_storage            = var.repl_instance_allocated_storage
   auto_minor_version_upgrade   = var.repl_instance_auto_minor_version_upgrade
@@ -149,7 +149,7 @@ resource "aws_dms_replication_instance" "this" {
 ################################################################################
 
 resource "aws_dms_endpoint" "this" {
-  for_each = { for k, v in var.endpoints : k => v if var.create }
+  for_each = { for k, v in var.endpoints : k => v if var.create && var.create_endpoints }
 
   certificate_arn             = try(aws_dms_certificate.this[each.value.certificate_key].certificate_arn, null)
   database_name               = lookup(each.value, "database_name", null)
@@ -287,7 +287,7 @@ resource "aws_dms_endpoint" "this" {
 ################################################################################
 
 resource "aws_dms_replication_task" "this" {
-  for_each = { for k, v in var.replication_tasks : k => v if var.create }
+  for_each = { for k, v in var.replication_tasks : k => v if var.create && var.create_repl_task }
 
   cdc_start_position        = lookup(each.value, "cdc_start_position", null)
   cdc_start_time            = lookup(each.value, "cdc_start_time", null)

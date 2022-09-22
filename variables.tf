@@ -67,6 +67,12 @@ variable "repl_subnet_group_tags" {
 }
 
 # Instance
+variable "create_repl_instance" {
+  description = "Determines whether the replication instance will be created"
+  type        = bool
+  default     = true
+}
+
 variable "repl_instance_allocated_storage" {
   description = "The amount of storage (in gigabytes) to be initially allocated for the replication instance. Min: 5, Max: 6144, Default: 50"
   type        = number
@@ -164,6 +170,12 @@ variable "repl_instance_timeouts" {
 }
 
 # Replication Tasks
+variable "create_repl_task" {
+  description = "Determines whether any replication tasks will be created"
+  type        = bool
+  default     = true
+}
+
 variable "replication_tasks" {
   description = "Map of objects that define the replication tasks to be created"
   type        = any
@@ -172,6 +184,12 @@ variable "replication_tasks" {
 
 
 # Endpoints
+variable "create_endpoints" {
+  description = "Determines whether any endpoints will be created"
+  type        = bool
+  default     = true
+}
+
 variable "endpoints" {
   description = "Map of objects that define the endpoints to be created"
   type        = any
