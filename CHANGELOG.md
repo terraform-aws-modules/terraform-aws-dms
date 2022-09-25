@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.5.3...v1.6.0) (2022-09-25)
+
+
+### Features
+
+* Added support for secretsmanager secret in endpoints ([#27](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/27)) ([ddb33cb](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/ddb33cbc7a39add9d331cef49206d1aa80d14541))
+
 ### [1.5.3](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.5.2...v1.5.3) (2022-07-25)
 
 
