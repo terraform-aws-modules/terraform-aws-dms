@@ -119,17 +119,15 @@ module "dms_aurora_postgresql_aurora_mysql" {
     }
 
     postgresql-source = {
-      database_name               = local.db_name
-      endpoint_id                 = "${local.name}-postgresql-source"
-      endpoint_type               = "source"
-      engine_name                 = "aurora-postgresql"
-      extra_connection_attributes = "heartbeatFrequency=1;"
-      username                    = local.db_username
-      password                    = module.rds_aurora["postgresql-source"].cluster_master_password
-      port                        = 5432
-      server_name                 = module.rds_aurora["postgresql-source"].cluster_endpoint
-      ssl_mode                    = "none"
-      tags                        = { EndpointType = "postgresql-source" }
+      database_name                   = local.db_name
+      endpoint_id                     = "${local.name}-postgresql-source"
+      endpoint_type                   = "source"
+      engine_name                     = "aurora-postgresql"
+      secrets_manager_arn             = aws_secretsmanager_secret_version.aurora_credentials.arn
+      secrets_manager_access_role_arn = aws_iam_role.secretsmanager_role.arn
+      extra_connection_attributes     = "heartbeatFrequency=1;secretsManagerEndpointOverride=${module.vpc_endpoints.endpoints["secretsmanager"]["dns_entry"][0]["dns_name"]}"
+      ssl_mode                        = "none"
+      tags                            = { EndpointType = "postgresql-source" }
     }
 
     mysql-destination = {
@@ -302,6 +300,10 @@ module "vpc_endpoints" {
       service_type    = "Gateway"
       route_table_ids = flatten([module.vpc.private_route_table_ids, module.vpc.database_route_table_ids])
       tags            = { Name = "s3-vpc-endpoint" }
+    }
+    secretsmanager = {
+      service_name = "com.amazonaws.${local.region}.secretsmanager"
+      subnet_ids   = module.vpc.database_subnets
     }
   }
 
@@ -572,4 +574,78 @@ resource "aws_secretsmanager_secret_policy" "msk" {
     } ]
   }
   POLICY
+}
+
+resource "aws_kms_key" "aurora_credentials" {
+  description         = "KMS CMK for ${local.name}"
+  enable_key_rotation = true
+
+  tags = local.tags
+}
+
+resource "aws_secretsmanager_secret" "aurora_credentials" {
+  name        = "rds_aurora_${local.name}_${random_pet.this.id}"
+  description = "Secret for ${local.name}"
+  kms_key_id  = aws_kms_key.aurora_credentials.key_id
+
+  tags = local.tags
+}
+
+resource "aws_secretsmanager_secret_version" "aurora_credentials" {
+  secret_id = aws_secretsmanager_secret.aurora_credentials.id
+  secret_string = jsonencode(
+    {
+      username = module.rds_aurora["postgresql-source"].cluster_master_username
+      password = module.rds_aurora["postgresql-source"].cluster_master_password
+      port     = 5432
+      host     = module.rds_aurora["postgresql-source"].cluster_endpoint
+    }
+  )
+  depends_on = [module.rds_aurora]
+}
+
+resource "aws_iam_role" "secretsmanager_role" {
+  name        = "${local.name}-secretsmanager"
+  description = "Role used to read secretsmanager secret"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DMSAssume"
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "dms.${local.region}.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  inline_policy {
+    name = "${local.name}-secretsmanager"
+
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Sid      = "DMSRead"
+          Action   = "secretsmanager:GetSecretValue"
+          Effect   = "Allow"
+          Resource = aws_secretsmanager_secret_version.aurora_credentials.arn
+        },
+        {
+          Sid = "KMSRead"
+          Action = [
+            "kms:Decrypt",
+            "kms:DescribeKey"
+          ]
+          Effect   = "Allow"
+          Resource = aws_kms_key.aurora_credentials.arn
+        }
+      ]
+    })
+  }
+
+  tags = local.tags
 }
