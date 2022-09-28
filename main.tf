@@ -3,6 +3,8 @@ locals {
 
   partition  = data.aws_partition.current.partition
   dns_suffix = data.aws_partition.current.dns_suffix
+
+  sources_compatible_secretsmanager = ["aurora", "aurora-postgresql", "mariadb", "mongodb", "mysql", "oracle", "postgres", "redshift", "sqlserver"]
 }
 
 data "aws_partition" "current" {}
@@ -151,19 +153,21 @@ resource "aws_dms_replication_instance" "this" {
 resource "aws_dms_endpoint" "this" {
   for_each = { for k, v in var.endpoints : k => v if var.create }
 
-  certificate_arn             = try(aws_dms_certificate.this[each.value.certificate_key].certificate_arn, null)
-  database_name               = lookup(each.value, "database_name", null)
-  endpoint_id                 = each.value.endpoint_id
-  endpoint_type               = each.value.endpoint_type
-  engine_name                 = each.value.engine_name
-  extra_connection_attributes = lookup(each.value, "extra_connection_attributes", null)
-  kms_key_arn                 = lookup(each.value, "kms_key_arn", null)
-  password                    = lookup(each.value, "password", null)
-  port                        = lookup(each.value, "port", null)
-  server_name                 = lookup(each.value, "server_name", null)
-  service_access_role         = lookup(each.value, "service_access_role", null)
-  ssl_mode                    = lookup(each.value, "ssl_mode", null)
-  username                    = lookup(each.value, "username", null)
+  certificate_arn                 = try(aws_dms_certificate.this[each.value.certificate_key].certificate_arn, null)
+  database_name                   = lookup(each.value, "database_name", null)
+  endpoint_id                     = each.value.endpoint_id
+  endpoint_type                   = each.value.endpoint_type
+  engine_name                     = each.value.engine_name
+  secrets_manager_access_role_arn = contains(local.sources_compatible_secretsmanager, each.value.engine_name) ? lookup(each.value, "secrets_manager_access_role_arn", null) : null
+  secrets_manager_arn             = contains(local.sources_compatible_secretsmanager, each.value.engine_name) ? lookup(each.value, "secrets_manager_arn", null) : null
+  extra_connection_attributes     = lookup(each.value, "extra_connection_attributes", null)
+  kms_key_arn                     = lookup(each.value, "kms_key_arn", null)
+  password                        = lookup(each.value, "password", null)
+  port                            = lookup(each.value, "port", null)
+  server_name                     = lookup(each.value, "server_name", null)
+  service_access_role             = lookup(each.value, "service_access_role", null)
+  ssl_mode                        = lookup(each.value, "ssl_mode", null)
+  username                        = lookup(each.value, "username", null)
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Elasticsearch.html
   dynamic "elasticsearch_settings" {
