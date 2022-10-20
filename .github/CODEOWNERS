@@ -1,0 +1,5 @@
+# Missing Team Ownership (need to update)
+
+.snyk @PrjPhx/security-foundation
+.circleci/config.yml @PrjPhx/security-foundation
+.github/CODEOWNERS @PrjPhx/security-foundation
