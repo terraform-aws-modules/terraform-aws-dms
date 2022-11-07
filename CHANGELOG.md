@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.6.1](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.6.0...v1.6.1) (2022-11-07)
+
+
+### Bug Fixes
+
+* Update CI configuration files to use latest version ([#31](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/31)) ([8d96876](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/8d9687647a0822fa2b777fe07b00d23f45ec7c7b))
+
 ## [1.6.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.5.3...v1.6.0) (2022-09-25)
 
 
