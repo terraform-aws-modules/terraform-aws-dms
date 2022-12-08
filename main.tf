@@ -265,6 +265,7 @@ resource "aws_dms_endpoint" "this" {
       enable_statistics                 = lookup(s3_settings.value, "enable_statistics", null)
       encoding_type                     = lookup(s3_settings.value, "encoding_type", null)
       encryption_mode                   = lookup(s3_settings.value, "encryption_mode", null)
+      expected_bucket_owner             = lookup(s3_settings.value, "expected_bucket_owner", null)
       external_table_definition         = lookup(s3_settings.value, "external_table_definition", null)
       ignore_headers_row                = lookup(s3_settings.value, "ignore_headers_row", null)
       include_op_for_full_load          = lookup(s3_settings.value, "include_op_for_full_load", null)
