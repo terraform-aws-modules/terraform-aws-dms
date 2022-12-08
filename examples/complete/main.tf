@@ -97,6 +97,7 @@ module "dms_aurora_postgresql_aurora_mysql" {
         bucket_name               = local.bucket_name # to avoid https://github.com/hashicorp/terraform/issues/4149
         data_format               = "csv"
         encryption_mode           = "SSE_S3"
+        expected_bucket_owner     = data.aws_caller_identity.current.account_id
         external_table_definition = file("configs/s3_table_definition.json")
         service_access_role_arn   = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/${local.name}-s3" # to avoid https://github.com/hashicorp/terraform/issues/4149
       }
