@@ -52,15 +52,23 @@ module "dms_default" {
   # - Replication instance
   create = false # not enabling by default to avoid messing with the IAM roles
 
-  # Subnet group
-  repl_subnet_group_name        = local.name
-  repl_subnet_group_description = "DMS Subnet group for ${local.name}"
-  repl_subnet_group_subnet_ids  = module.vpc.database_subnets
+  # Subnet group  
+  subnet_groups = {
+
+    "${local.name}" = {
+      repl_subnet_group_desc = "DMS Subnet group for ${local.name}"
+      repl_subnet_ids        = module.vpc.database_subnets
+    }
+
+  }
 
   # Instance
-  repl_instance_class = "dms.t3.large"
-  repl_instance_id    = local.name
+    replication_instances = {
 
+    "${local.name}" = {
+      repl_instance_class                        = "dms.t3.large"    
+	}
+  
   tags = local.tags
 }
 
@@ -68,22 +76,30 @@ module "dms_aurora_postgresql_aurora_mysql" {
   source = "../.."
 
   # Subnet group
-  repl_subnet_group_name        = local.name
-  repl_subnet_group_description = "DMS Subnet group for ${local.name}"
-  repl_subnet_group_subnet_ids  = module.vpc.database_subnets
+  subnet_groups = {
+    "${local.name}" = {
+      repl_subnet_group_desc = "DMS Subnet group for ${local.name}"
+      repl_subnet_ids        = module.vpc.database_subnets
+    }
+  }
 
   # Instance
-  repl_instance_allocated_storage            = 64
-  repl_instance_auto_minor_version_upgrade   = true
-  repl_instance_allow_major_version_upgrade  = true
-  repl_instance_apply_immediately            = true
-  repl_instance_engine_version               = "3.4.5"
-  repl_instance_multi_az                     = true
-  repl_instance_preferred_maintenance_window = "sun:10:30-sun:14:30"
-  repl_instance_publicly_accessible          = false
-  repl_instance_class                        = "dms.t3.large"
-  repl_instance_id                           = local.name
-  repl_instance_vpc_security_group_ids       = [module.security_group["replication-instance"].security_group_id]
+  replication_instances = {
+      "${local.name}" = {
+         repl_instance_class                        = "dms.t3.large"
+         repl_instance_allocated_storage            = 64
+         repl_instance_auto_minor_version_upgrade   = true
+         repl_instance_allow_major_version_upgrade  = true
+         repl_instance_apply_immediately            = true
+         repl_instance_engine_version               = "3.4.5"
+         repl_instance_multi_az                     = true
+         repl_instance_preferred_maintenance_window = "sun:10:30-sun:14:30"
+         repl_instance_publicly_accessible          = false
+         repl_instance_vpc_security_group_ids       = [module.security_group["replication-instance"].security_group_id]
+         repl_subnet_group_id                       = "${local.name}"
+         repl_conditional_env_filter                = var.aws_environment == "dev" ? true : false
+	  }
+  }
 
   endpoints = {
     s3-source = {

@@ -12,22 +12,30 @@ module "database_migration_service" {
   version = "~> 1.0"
 
   # Subnet group
-  repl_subnet_group_name        = "example"
-  repl_subnet_group_description = "DMS Subnet group"
-  repl_subnet_group_subnet_ids  = ["subnet-1fe3d837", "subnet-129d66ab", "subnet-1211eef5"]
+  subnet_groups = {
+    "example" = {
+      repl_subnet_group_desc = "DMS Subnet group"
+      repl_subnet_ids        = ["subnet-1fe3d837", "subnet-129d66ab", "subnet-1211eef5"]
+    }
+  }
 
   # Instance
-  repl_instance_allocated_storage            = 64
-  repl_instance_auto_minor_version_upgrade   = true
-  repl_instance_allow_major_version_upgrade  = true
-  repl_instance_apply_immediately            = true
-  repl_instance_engine_version               = "3.4.5"
-  repl_instance_multi_az                     = true
-  repl_instance_preferred_maintenance_window = "sun:10:30-sun:14:30"
-  repl_instance_publicly_accessible          = false
-  repl_instance_class                        = "dms.t3.large"
-  repl_instance_id                           = "example"
-  repl_instance_vpc_security_group_ids       = ["sg-12345678"]
+  replication_instances = {
+      "example" = {
+         repl_instance_class                        = "dms.t3.large"
+         repl_instance_allocated_storage            = 64
+         repl_instance_auto_minor_version_upgrade   = true
+         repl_instance_allow_major_version_upgrade  = true
+         repl_instance_apply_immediately            = true
+         repl_instance_engine_version               = "3.4.5"
+         repl_instance_multi_az                     = true
+         repl_instance_preferred_maintenance_window = "sun:10:30-sun:14:30"
+         repl_instance_publicly_accessible          = false
+         repl_instance_vpc_security_group_ids       = ["sg-12345678"]
+         repl_subnet_group_id                       = "example"
+         repl_conditional_env_filter                = true
+	  }
+  }
 
   endpoints = {
     source = {
@@ -146,9 +154,6 @@ module "database_migration_service" {
   source  = "terraform-aws-modules/dms/aws"
   version = "~> 1.0"
 
-  # This value is used when subscribing to instance event notifications
-  repl_instance_id = "readme-example"
-
   endpoints = {
     # These keys are used to map endpoints within task definitions by this key `source1`
     source1 = {
@@ -163,6 +168,36 @@ module "database_migration_service" {
 
     destination2 = {
       endpoint_type = "target"
+      ...
+    }
+  }
+```
+
+To create multiple replication instances, you provide multiple keys to the `replication_instances` map:
+
+```hcl
+  replication_instances = {
+    rep_instance1 = {
+	  repl_instance_class = "dms.t3.large"
+      ...
+    }
+    rep_instance2 = {
+	  repl_instance_class = "dms.t3.large"	
+      ...
+    }
+  }
+```
+
+To create multiple replication instance subnet groups, you provide multiple keys to the `subnet_groups` map:
+
+```hcl
+  subnet_groups = {
+    subnet_group1 = {
+	  repl_subnet_ids = ["subnet-1fe3d837", "subnet-129d66ab", "subnet-1211eef5"]
+      ...
+    }
+    subnet_group1 = {
+	  repl_subnet_ids = ["subnet-2fe3d837", "subnet-229d66ab", "subnet-2211eef5"]
       ...
     }
   }
@@ -349,27 +384,12 @@ No modules.
 | <a name="input_event_subscriptions"></a> [event\_subscriptions](#input\_event\_subscriptions) | Map of objects that define the event subscriptions to be created | `any` | `{}` | no |
 | <a name="input_iam_role_permissions_boundary"></a> [iam\_role\_permissions\_boundary](#input\_iam\_role\_permissions\_boundary) | ARN of the policy that is used to set the permissions boundary for the role | `string` | `null` | no |
 | <a name="input_iam_role_tags"></a> [iam\_role\_tags](#input\_iam\_role\_tags) | A map of additional tags to apply to the DMS IAM roles | `map(string)` | `{}` | no |
-| <a name="input_repl_instance_allocated_storage"></a> [repl\_instance\_allocated\_storage](#input\_repl\_instance\_allocated\_storage) | The amount of storage (in gigabytes) to be initially allocated for the replication instance. Min: 5, Max: 6144, Default: 50 | `number` | `null` | no |
-| <a name="input_repl_instance_allow_major_version_upgrade"></a> [repl\_instance\_allow\_major\_version\_upgrade](#input\_repl\_instance\_allow\_major\_version\_upgrade) | Indicates that major version upgrades are allowed | `bool` | `null` | no |
-| <a name="input_repl_instance_apply_immediately"></a> [repl\_instance\_apply\_immediately](#input\_repl\_instance\_apply\_immediately) | Indicates whether the changes should be applied immediately or during the next maintenance window | `bool` | `null` | no |
-| <a name="input_repl_instance_auto_minor_version_upgrade"></a> [repl\_instance\_auto\_minor\_version\_upgrade](#input\_repl\_instance\_auto\_minor\_version\_upgrade) | Indicates that minor engine upgrades will be applied automatically to the replication instance during the maintenance window | `bool` | `null` | no |
-| <a name="input_repl_instance_availability_zone"></a> [repl\_instance\_availability\_zone](#input\_repl\_instance\_availability\_zone) | The EC2 Availability Zone that the replication instance will be created in | `string` | `null` | no |
-| <a name="input_repl_instance_class"></a> [repl\_instance\_class](#input\_repl\_instance\_class) | The compute and memory capacity of the replication instance as specified by the replication instance class | `string` | `null` | no |
-| <a name="input_repl_instance_engine_version"></a> [repl\_instance\_engine\_version](#input\_repl\_instance\_engine\_version) | The [engine version](https://docs.aws.amazon.com/dms/latest/userguide/CHAP_ReleaseNotes.html) number of the replication instance | `string` | `null` | no |
-| <a name="input_repl_instance_id"></a> [repl\_instance\_id](#input\_repl\_instance\_id) | The replication instance identifier. This parameter is stored as a lowercase string | `string` | `null` | no |
-| <a name="input_repl_instance_kms_key_arn"></a> [repl\_instance\_kms\_key\_arn](#input\_repl\_instance\_kms\_key\_arn) | The Amazon Resource Name (ARN) for the KMS key that will be used to encrypt the connection parameters | `string` | `null` | no |
-| <a name="input_repl_instance_multi_az"></a> [repl\_instance\_multi\_az](#input\_repl\_instance\_multi\_az) | Specifies if the replication instance is a multi-az deployment. You cannot set the `availability_zone` parameter if the `multi_az` parameter is set to `true` | `bool` | `null` | no |
-| <a name="input_repl_instance_preferred_maintenance_window"></a> [repl\_instance\_preferred\_maintenance\_window](#input\_repl\_instance\_preferred\_maintenance\_window) | The weekly time range during which system maintenance can occur, in Universal Coordinated Time (UTC) | `string` | `null` | no |
-| <a name="input_repl_instance_publicly_accessible"></a> [repl\_instance\_publicly\_accessible](#input\_repl\_instance\_publicly\_accessible) | Specifies the accessibility options for the replication instance | `bool` | `null` | no |
-| <a name="input_repl_instance_subnet_group_id"></a> [repl\_instance\_subnet\_group\_id](#input\_repl\_instance\_subnet\_group\_id) | An existing subnet group to associate with the replication instance | `string` | `null` | no |
 | <a name="input_repl_instance_tags"></a> [repl\_instance\_tags](#input\_repl\_instance\_tags) | A map of additional tags to apply to the replication instance | `map(string)` | `{}` | no |
 | <a name="input_repl_instance_timeouts"></a> [repl\_instance\_timeouts](#input\_repl\_instance\_timeouts) | A map of timeouts for replication instance create/update/delete operations | `map(string)` | `{}` | no |
-| <a name="input_repl_instance_vpc_security_group_ids"></a> [repl\_instance\_vpc\_security\_group\_ids](#input\_repl\_instance\_vpc\_security\_group\_ids) | A list of VPC security group IDs to be used with the replication instance | `list(string)` | `null` | no |
-| <a name="input_repl_subnet_group_description"></a> [repl\_subnet\_group\_description](#input\_repl\_subnet\_group\_description) | The description for the subnet group | `string` | `null` | no |
-| <a name="input_repl_subnet_group_name"></a> [repl\_subnet\_group\_name](#input\_repl\_subnet\_group\_name) | The name for the replication subnet group. Stored as a lowercase string, must contain no more than 255 alphanumeric characters, periods, spaces, underscores, or hyphens | `string` | `null` | no |
-| <a name="input_repl_subnet_group_subnet_ids"></a> [repl\_subnet\_group\_subnet\_ids](#input\_repl\_subnet\_group\_subnet\_ids) | A list of the EC2 subnet IDs for the subnet group | `list(string)` | `[]` | no |
 | <a name="input_repl_subnet_group_tags"></a> [repl\_subnet\_group\_tags](#input\_repl\_subnet\_group\_tags) | A map of additional tags to apply to the replication subnet group | `map(string)` | `{}` | no |
+| <a name="input_replication_instances"></a> [replication\_instances](#input\_replication\_instances) | A map of objects that define the replication instances to be created | <pre>map(object({<br>  repl_instance_class = string,<br>  repl_instance_allocated_storage = optional(number),<br>  repl_instance_auto_minor_version_upgrade = optional(bool),<br>  repl_instance_allow_major_version_upgrade = optional(bool),<br>  repl_instance_apply_immediately = optional(bool),<br>  repl_instance_engine_version = optional(string),<br>  repl_instance_multi_az = optional(bool),<br>  repl_instance_preferred_maintenance_window = optional(string),<br>  repl_instance_publicly_accessible = optional(bool),<br>  repl_instance_vpc_security_group_ids = optional(list(string)),<br>  repl_subnet_group_id = optional(string),<br>  repl_conditional_env_filter = optional(bool)<br>}</pre> | `{}` | no |
 | <a name="input_replication_tasks"></a> [replication\_tasks](#input\_replication\_tasks) | Map of objects that define the replication tasks to be created | `any` | `{}` | no |
+| <a name="subnet_groups"></a> [subnet\_groups](#input\_subnet\_groups) | A map of objects that define the replication instance subnet groups to be created | <pre>map(object({<br>  repl_subnet_group_desc = optional(string),<br>  repl_subnet_ids = list(string)<br>}</pre> | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to use on all resources | `map(string)` | `{}` | no |
 
 ## Outputs

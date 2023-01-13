@@ -1,5 +1,4 @@
 locals {
-  subnet_group_id = var.create && var.create_repl_subnet_group ? aws_dms_replication_subnet_group.this[0].id : var.repl_instance_subnet_group_id
 
   partition  = data.aws_partition.current.partition
   dns_suffix = data.aws_partition.current.dns_suffix
@@ -49,8 +48,18 @@ resource "time_sleep" "wait_for_dependency_resources" {
     aws_iam_role.dms_vpc_role
   ]
 
-  create_duration  = "10s"
-  destroy_duration = "10s"
+  create_duration  = "20s"
+  destroy_duration = "20s"
+}
+
+# Time Sleep for subnet group wait
+resource "time_sleep" "waits_for_subnet_group" {
+  depends_on = [
+    aws_dms_replication_subnet_group.this
+  ]
+
+  create_duration  = "20s"
+  destroy_duration = "20s"
 }
 
 # DMS Endpoint
@@ -100,11 +109,11 @@ resource "aws_iam_role" "dms_vpc_role" {
 ################################################################################
 
 resource "aws_dms_replication_subnet_group" "this" {
-  count = var.create && var.create_repl_subnet_group ? 1 : 0
+  for_each = { for k, v in var.subnet_groups : k => v if var.create && var.create_repl_subnet_group }
 
-  replication_subnet_group_id          = lower(var.repl_subnet_group_name)
-  replication_subnet_group_description = var.repl_subnet_group_description
-  subnet_ids                           = var.repl_subnet_group_subnet_ids
+  replication_subnet_group_id          = lower(each.key)
+  replication_subnet_group_description = lookup(each.value, "repl_subnet_group_desc", null)
+  subnet_ids                           = lookup(each.value, "repl_subnet_ids", null)
 
   tags = merge(var.tags, var.repl_subnet_group_tags)
 
@@ -116,22 +125,22 @@ resource "aws_dms_replication_subnet_group" "this" {
 ################################################################################
 
 resource "aws_dms_replication_instance" "this" {
-  count = var.create ? 1 : 0
+  for_each = { for k, v in var.replication_instances : k => v if var.create && coalesce(v.repl_conditional_env_filter,true) }
 
-  allocated_storage            = var.repl_instance_allocated_storage
-  auto_minor_version_upgrade   = var.repl_instance_auto_minor_version_upgrade
-  allow_major_version_upgrade  = var.repl_instance_allow_major_version_upgrade
-  apply_immediately            = var.repl_instance_apply_immediately
-  availability_zone            = var.repl_instance_availability_zone
-  engine_version               = var.repl_instance_engine_version
-  kms_key_arn                  = var.repl_instance_kms_key_arn
-  multi_az                     = var.repl_instance_multi_az
-  preferred_maintenance_window = var.repl_instance_preferred_maintenance_window
-  publicly_accessible          = var.repl_instance_publicly_accessible
-  replication_instance_class   = var.repl_instance_class
-  replication_instance_id      = var.repl_instance_id
-  replication_subnet_group_id  = local.subnet_group_id
-  vpc_security_group_ids       = var.repl_instance_vpc_security_group_ids
+  replication_instance_id      = each.key
+  replication_instance_class   = lookup(each.value, "repl_instance_class", null)
+  allocated_storage            = lookup(each.value, "repl_instance_allocated_storage", 50)
+  auto_minor_version_upgrade   = lookup(each.value, "repl_instance_auto_minor_version_upgrade", null)
+  allow_major_version_upgrade  = lookup(each.value, "repl_instance_allow_major_version_upgrade", null)
+  apply_immediately            = lookup(each.value, "repl_instance_apply_immediately", null)
+  availability_zone            = lookup(each.value, "repl_availability_zone", null)
+  engine_version               = lookup(each.value, "repl_instance_engine_version", null)
+  kms_key_arn                  = lookup(each.value, "repl_kms_key_arn", null)
+  multi_az                     = lookup(each.value, "repl_instance_multi_az", false)
+  preferred_maintenance_window = lookup(each.value, "repl_instance_preferred_maintenance_window", null)
+  publicly_accessible          = lookup(each.value, "repl_instance_publicly_accessible", false)
+  replication_subnet_group_id  = lookup(each.value, "repl_subnet_group_id", null)
+  vpc_security_group_ids       = lookup(each.value, "repl_instance_vpc_security_group_ids", null)
 
   tags = merge(var.tags, var.repl_instance_tags)
 
@@ -141,7 +150,7 @@ resource "aws_dms_replication_instance" "this" {
     delete = lookup(var.repl_instance_timeouts, "delete", null)
   }
 
-  depends_on = [time_sleep.wait_for_dependency_resources]
+  depends_on = [time_sleep.waits_for_subnet_group]
 }
 
 ################################################################################
@@ -294,7 +303,7 @@ resource "aws_dms_replication_task" "this" {
   cdc_start_position        = lookup(each.value, "cdc_start_position", null)
   cdc_start_time            = lookup(each.value, "cdc_start_time", null)
   migration_type            = each.value.migration_type
-  replication_instance_arn  = aws_dms_replication_instance.this[0].replication_instance_arn
+  replication_instance_arn  = aws_dms_replication_instance.this[each.value.replication_instance_id].replication_instance_arn
   replication_task_id       = each.value.replication_task_id
   replication_task_settings = lookup(each.value, "replication_task_settings", null)
   table_mappings            = lookup(each.value, "table_mappings", null)
@@ -318,7 +327,7 @@ resource "aws_dms_event_subscription" "this" {
   source_type      = lookup(each.value, "source_type", null)
   source_ids = compact(concat([
     for instance in aws_dms_replication_instance.this[*] :
-    instance.replication_instance_id if lookup(each.value, "instance_event_subscription_keys", null) == var.repl_instance_id
+    instance.replication_instance_id if contains(lookup(each.value, "instance_event_subscription_keys", []), each.key)
     ], [
     for task in aws_dms_replication_task.this[*] :
     task.replication_task_id if contains(lookup(each.value, "task_event_subscription_keys", []), each.key)
