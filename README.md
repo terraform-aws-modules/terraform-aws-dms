@@ -189,7 +189,7 @@ To create replication tasks, you simply reference the relevant keys from the `en
   ...
 ```
 
-Continuing the same lookup patter, to create event subscriptions, you simply reference the replication instance ID in the `instance_event_subscription_keys`field when subscribing to instance notifications, or the `replication_tasks` keys in the `task_event_subscription_keys` to subscribe to the tasks notifications (all or only select keys for select tasks):
+Continuing the same lookup pattern, to create event subscriptions, you simply reference the replication instance ID in the `instance_event_subscription_keys` field when subscribing to instance notifications, or the `replication_tasks` keys in the `task_event_subscription_keys` to subscribe to the tasks notifications (all or only select keys for select tasks):
 
 ```hcl
   ...
