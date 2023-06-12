@@ -266,7 +266,7 @@ resource "aws_dms_endpoint" "this" {
       encoding_type                     = lookup(s3_settings.value, "encoding_type", null)
       encryption_mode                   = lookup(s3_settings.value, "encryption_mode", null)
       external_table_definition         = lookup(s3_settings.value, "external_table_definition", null)
-      ignore_headers_row                = lookup(s3_settings.value, "ignore_headers_row", null)
+      ignore_header_row                = lookup(s3_settings.value, "ignore_header_row", null)
       include_op_for_full_load          = lookup(s3_settings.value, "include_op_for_full_load", null)
       max_file_size                     = lookup(s3_settings.value, "max_file_size", null)
       parquet_timestamp_in_millisecond  = lookup(s3_settings.value, "parquet_timestamp_in_millisecond", null)
