@@ -303,14 +303,14 @@ Examples codified under the [`examples`](https://github.com/terraform-aws-module
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.49.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.49.0, < 5.0.0 |
 | <a name="requirement_time"></a> [time](#requirement\_time) | >=0.7.2 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.49.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.49.0, < 5.0.0 |
 | <a name="provider_time"></a> [time](#provider\_time) | >=0.7.2 |
 
 ## Modules
