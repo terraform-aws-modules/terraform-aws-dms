@@ -2,9 +2,14 @@ provider "aws" {
   region = local.region
 }
 
+data "aws_availability_zones" "available" {}
+
 locals {
   region = "us-east-1"
-  name   = "dms-ex-${replace(basename(path.cwd), "_", "-")}"
+  name   = "dms-ex-${basename(path.cwd)}"
+
+  vpc_cidr = "10.0.0.0/16"
+  azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
   db_name     = "example"
   db_username = "example"
@@ -19,19 +24,12 @@ locals {
   replication_instance_event_categories = ["failure", "creation", "deletion", "maintenance", "failover", "low storage", "configuration change"]
   replication_task_event_categories     = ["failure", "state change", "creation", "deletion", "configuration change"]
 
-  bucket_postfix = "${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
-  bucket_name    = "${local.name}-s3-${local.bucket_postfix}"
-
   tags = {
     Name       = local.name
     Example    = local.name
     Repository = "https://github.com/terraform-aws-modules/terraform-aws-dms"
   }
 }
-
-data "aws_partition" "current" {}
-data "aws_region" "current" {}
-data "aws_caller_identity" "current" {}
 
 ################################################################################
 # DMS Module
@@ -94,11 +92,11 @@ module "dms_aurora_postgresql_aurora_mysql" {
 
       s3_settings = {
         bucket_folder             = "sourcedata"
-        bucket_name               = local.bucket_name # to avoid https://github.com/hashicorp/terraform/issues/4149
+        bucket_name               = module.s3_bucket.s3_bucket_id
         data_format               = "csv"
         encryption_mode           = "SSE_S3"
         external_table_definition = file("configs/s3_table_definition.json")
-        service_access_role_arn   = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/${local.name}-s3" # to avoid https://github.com/hashicorp/terraform/issues/4149
+        service_access_role_arn   = aws_iam_role.s3_role.arn
       }
 
       tags = { EndpointType = "s3-source" }
@@ -248,42 +246,24 @@ resource "random_pet" "this" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 3.0"
+  version = "~> 5.0"
 
   name = local.name
-  cidr = "10.99.0.0/18"
+  cidr = local.vpc_cidr
 
-  azs              = ["${local.region}a", "${local.region}b", "${local.region}d"] # careful on which AZs support DMS VPC endpoint
-  public_subnets   = ["10.99.0.0/24", "10.99.1.0/24", "10.99.2.0/24"]
-  private_subnets  = ["10.99.3.0/24", "10.99.4.0/24", "10.99.5.0/24"]
-  database_subnets = ["10.99.7.0/24", "10.99.8.0/24", "10.99.9.0/24"]
+  azs              = local.azs
+  public_subnets   = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
+  private_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 3)]
+  database_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 6)]
 
   create_database_subnet_group = true
-  enable_nat_gateway           = false # not required, using private VPC endpoint
-  single_nat_gateway           = true
-  map_public_ip_on_launch      = false
-
-  manage_default_security_group  = true
-  default_security_group_ingress = []
-  default_security_group_egress  = []
-
-  enable_flow_log                      = true
-  flow_log_destination_type            = "cloud-watch-logs"
-  create_flow_log_cloudwatch_log_group = true
-  create_flow_log_cloudwatch_iam_role  = true
-  flow_log_max_aggregation_interval    = 60
-  flow_log_log_format                  = "$${version} $${account-id} $${interface-id} $${srcaddr} $${dstaddr} $${srcport} $${dstport} $${protocol} $${packets} $${bytes} $${start} $${end} $${action} $${log-status} $${vpc-id} $${subnet-id} $${instance-id} $${tcp-flags} $${type} $${pkt-srcaddr} $${pkt-dstaddr} $${region} $${az-id} $${sublocation-type} $${sublocation-id}"
-
-  enable_dhcp_options      = true
-  enable_dns_hostnames     = true
-  dhcp_options_domain_name = data.aws_region.current.name == "us-east-1" ? "ec2.internal" : "${data.aws_region.current.name}.compute.internal"
 
   tags = local.tags
 }
 
 module "vpc_endpoints" {
   source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
-  version = "~> 3.0"
+  version = "~> 5.0"
 
   vpc_id             = module.vpc.vpc_id
   security_group_ids = [module.vpc_endpoint_security_group.security_group_id]
@@ -292,7 +272,7 @@ module "vpc_endpoints" {
     dms = {
       service             = "dms"
       private_dns_enabled = true
-      subnet_ids          = [element(module.vpc.database_subnets, 0), element(module.vpc.database_subnets, 1)] # careful on which AZs support DMS VPC endpoint
+      subnet_ids          = module.vpc.database_subnets
       tags                = { Name = "dms-vpc-endpoint" }
     }
     s3 = {
@@ -312,7 +292,7 @@ module "vpc_endpoints" {
 
 module "vpc_endpoint_security_group" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   name        = "${local.name}-vpc-endpoint"
   description = "Security group for VPC endpoints"
@@ -336,7 +316,7 @@ module "vpc_endpoint_security_group" {
 
 module "security_group" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   # Creates multiple
   for_each = {
@@ -361,7 +341,7 @@ module "security_group" {
 
 resource "aws_rds_cluster_parameter_group" "postgresql" {
   name   = "${local.name}-postgresql"
-  family = "aurora-postgresql11"
+  family = "aurora-postgresql14"
 
   parameter {
     name         = "rds.logical_replication"
@@ -379,18 +359,18 @@ resource "aws_rds_cluster_parameter_group" "postgresql" {
 
 module "rds_aurora" {
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "~> 6.0"
+  version = "~> 8.0"
 
   # Creates multiple
   for_each = {
     postgresql-source = {
       engine                          = "aurora-postgresql"
-      engine_version                  = "11.12"
+      engine_version                  = "14.7"
       enabled_cloudwatch_logs_exports = ["postgresql"]
     },
     mysql-destination = {
       engine                          = "aurora-mysql"
-      engine_version                  = "5.7.mysql_aurora.2.07.5"
+      engine_version                  = "8.0"
       enabled_cloudwatch_logs_exports = ["general", "error", "slowquery"]
     }
   }
@@ -433,14 +413,9 @@ module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 3.1"
 
-  bucket = local.bucket_name
+  bucket_prefix = local.name
 
   attach_deny_insecure_transport_policy = true
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
 
   server_side_encryption_configuration = {
     rule = {
@@ -475,7 +450,7 @@ resource "aws_iam_role" "s3_role" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          Service = "dms.${data.aws_partition.current.dns_suffix}"
+          Service = "dms.amazonaws.com"
         }
       },
     ]
@@ -508,14 +483,16 @@ resource "aws_iam_role" "s3_role" {
 
 module "msk_cluster" {
   source  = "clowdhaus/msk-kafka-cluster/aws"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   name                   = local.name
-  kafka_version          = "2.8.0"
+  kafka_version          = "3.4.0"
   number_of_broker_nodes = 3
 
-  broker_node_client_subnets  = module.vpc.private_subnets
-  broker_node_ebs_volume_size = 20
+  broker_node_client_subnets = module.vpc.private_subnets
+  broker_node_storage_info = {
+    ebs_storage_info = { volume_size = 20 }
+  }
   broker_node_instance_type   = "kafka.t3.small"
   broker_node_security_groups = [module.security_group["kafka-destination"].security_group_id]
 
@@ -529,7 +506,9 @@ module "msk_cluster" {
     "delete.topic.enable"       = true
   }
 
-  client_authentication_sasl_scram         = true
+  client_authentication = {
+    sasl = { scram = true }
+  }
   create_scram_secret_association          = true
   scram_secret_association_secret_arn_list = [aws_secretsmanager_secret.msk.arn]
 
