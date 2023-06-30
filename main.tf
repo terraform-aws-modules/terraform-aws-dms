@@ -1,11 +1,15 @@
-locals {
-  subnet_group_id = var.create && var.create_repl_subnet_group ? aws_dms_replication_subnet_group.this[0].id : var.repl_instance_subnet_group_id
-
-  partition  = data.aws_partition.current.partition
-  dns_suffix = data.aws_partition.current.dns_suffix
-}
-
+data "aws_region" "current" {}
 data "aws_partition" "current" {}
+data "aws_caller_identity" "current" {}
+
+locals {
+  account_id = data.aws_caller_identity.current.account_id
+  dns_suffix = data.aws_partition.current.dns_suffix
+  partition  = data.aws_partition.current.partition
+  region     = data.aws_region.current.name
+
+  subnet_group_id = var.create && var.create_repl_subnet_group ? aws_dms_replication_subnet_group.this[0].id : var.repl_instance_subnet_group_id
+}
 
 ################################################################################
 # IAM Roles
@@ -17,11 +21,27 @@ data "aws_iam_policy_document" "dms_assume_role" {
   count = var.create && var.create_iam_roles ? 1 : 0
 
   statement {
-    actions = ["sts:AssumeRole"]
+    actions = [
+      "sts:AssumeRole",
+      "sts:TagSession",
+    ]
 
     principals {
       identifiers = ["dms.${local.dns_suffix}"]
       type        = "Service"
+    }
+
+    # https://docs.aws.amazon.com/dms/latest/userguide/cross-service-confused-deputy-prevention.html#cross-service-confused-deputy-prevention-dms-api
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = ["arn:${local.partition}:dms:${local.region}:${local.account_id}:*"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [local.account_id]
     }
   }
 }
@@ -32,7 +52,10 @@ data "aws_iam_policy_document" "dms_assume_role_redshift" {
   source_policy_documents = [data.aws_iam_policy_document.dms_assume_role[0].json]
 
   statement {
-    actions = ["sts:AssumeRole"]
+    actions = [
+      "sts:AssumeRole",
+      "sts:TagSession",
+    ]
 
     principals {
       identifiers = ["redshift.${local.dns_suffix}"]
@@ -156,13 +179,13 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Elasticsearch.html
   dynamic "elasticsearch_settings" {
-    for_each = try([each.value.elasticsearch_settings], [])
+    for_each = length(lookup(each.value, "elasticsearch_settings", [])) > 0 ? [each.value.elasticsearch_settings] : []
 
     content {
       endpoint_uri               = elasticsearch_settings.value.endpoint_uri
       error_retry_duration       = try(elasticsearch_settings.value.error_retry_duration, null)
       full_load_error_percentage = try(elasticsearch_settings.value.full_load_error_percentage, null)
-      service_access_role_arn    = elasticsearch_settings.value.service_access_role_arn
+      service_access_role_arn    = lookup(elasticsearch_settings.value, "service_access_role_arn", aws_iam_role.access[0].arn)
     }
   }
 
@@ -173,7 +196,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kafka.html
   dynamic "kafka_settings" {
-    for_each = try([each.value.kafka_settings], [])
+    for_each = length(lookup(each.value, "kafka_settings", [])) > 0 ? [each.value.kafka_settings] : []
 
     content {
       broker                         = kafka_settings.value.broker
@@ -199,7 +222,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kinesis.html
   dynamic "kinesis_settings" {
-    for_each = try([each.value.kinesis_settings], [])
+    for_each = length(lookup(each.value, "kinesis_settings", [])) > 0 ? [each.value.kinesis_settings] : []
 
     content {
       include_control_details        = try(kinesis_settings.value.include_control_details, null)
@@ -209,7 +232,7 @@ resource "aws_dms_endpoint" "this" {
       include_transaction_details    = try(kinesis_settings.value.include_transaction_details, null)
       message_format                 = try(kinesis_settings.value.message_format, null)
       partition_include_schema_table = try(kinesis_settings.value.partition_include_schema_table, null)
-      service_access_role_arn        = lookup(kinesis_settings.value, "service_access_role_arn", null)
+      service_access_role_arn        = lookup(kinesis_settings.value, "service_access_role_arn", aws_iam_role.access[0].arn)
       stream_arn                     = lookup(kinesis_settings.value, "stream_arn", null)
     }
   }
@@ -218,7 +241,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MongoDB.html
   dynamic "mongodb_settings" {
-    for_each = try([each.value.mongodb_settings], [])
+    for_each = length(lookup(each.value, "mongodb_settings", [])) > 0 ? [each.value.mongodb_settings] : []
 
     content {
       auth_mechanism      = try(mongodb_settings.value.auth_mechanism, null)
@@ -234,7 +257,7 @@ resource "aws_dms_endpoint" "this" {
   port     = try(each.value.port, null)
 
   dynamic "redis_settings" {
-    for_each = try([each.value.redis_settings], [])
+    for_each = length(lookup(each.value, "redis_settings", [])) > 0 ? [each.value.redis_settings] : []
 
     content {
       auth_password          = try(redis_settings.value.auth_password, null)
@@ -248,21 +271,21 @@ resource "aws_dms_endpoint" "this" {
   }
 
   dynamic "redshift_settings" {
-    for_each = try([each.value.redshift_settings], [])
+    for_each = length(lookup(each.value, "redshift_settings", [])) > 0 ? [each.value.redshift_settings] : []
 
     content {
       bucket_folder                     = try(redshift_settings.value.bucket_folder, null)
-      bucket_name                       = try(redshift_settings.value.bucket_name, null)
+      bucket_name                       = lookup(redshift_settings.value, "bucket_name", null)
       encryption_mode                   = try(redshift_settings.value.encryption_mode, null)
-      server_side_encryption_kms_key_id = try(redshift_settings.value.server_side_encryption_kms_key_id, null)
-      service_access_role_arn           = try(redshift_settings.value.service_access_role_arn, null)
+      server_side_encryption_kms_key_id = lookup(redshift_settings.value, "server_side_encryption_kms_key_id", null)
+      service_access_role_arn           = lookup(redshift_settings.value, "service_access_role_arn", "arn:${local.partition}:iam::${local.account_id}:role/dms-access-for-endpoint")
     }
   }
 
-  secrets_manager_access_role_arn = lookup(each.value, "secrets_manager_access_role_arn", null)
+  secrets_manager_access_role_arn = lookup(each.value, "secrets_manager_arn", null) != null ? lookup(each.value, "secrets_manager_access_role_arn", aws_iam_role.access[0].arn) : null
   secrets_manager_arn             = lookup(each.value, "secrets_manager_arn", null)
   server_name                     = lookup(each.value, "server_name", null)
-  service_access_role             = lookup(each.value, "service_access_role", null)
+  service_access_role             = lookup(each.value, "service_access_role", aws_iam_role.access[0].arn)
   ssl_mode                        = try(each.value.ssl_mode, null)
   username                        = try(each.value.username, null)
 
@@ -274,7 +297,7 @@ resource "aws_dms_endpoint" "this" {
 ################################################################################
 
 resource "aws_dms_s3_endpoint" "this" {
-  for_each = { for k, v in var.endpoints : k => v if var.create && length(try(v.s3_settings, [])) > 0 }
+  for_each = { for k, v in var.s3_endpoints : k => v if var.create }
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.S3.html
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.S3.html
@@ -321,7 +344,7 @@ resource "aws_dms_s3_endpoint" "this" {
   rfc_4180                                    = try(each.value.rfc_4180, null)
   row_group_length                            = try(each.value.row_group_length, null)
   server_side_encryption_kms_key_id           = lookup(each.value, "server_side_encryption_kms_key_id", null)
-  service_access_role_arn                     = lookup(each.value, "service_access_role_arn", null)
+  service_access_role_arn                     = lookup(each.value, "service_access_role_arn", aws_iam_role.access[0].arn)
   timestamp_column_name                       = try(each.value.timestamp_column_name, null)
   use_csv_no_sup_value                        = try(each.value.use_csv_no_sup_value, null)
   use_task_start_time_for_full_load_timestamp = try(each.value.use_task_start_time_for_full_load_timestamp, null)
@@ -342,10 +365,10 @@ resource "aws_dms_replication_task" "this" {
   replication_instance_arn  = aws_dms_replication_instance.this[0].replication_instance_arn
   replication_task_id       = each.value.replication_task_id
   replication_task_settings = try(each.value.replication_task_settings, null)
-  source_endpoint_arn       = aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn
+  source_endpoint_arn       = try(aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.source_endpoint_key].endpoint_arn)
   start_replication_task    = try(each.value.start_replication_task, null)
   table_mappings            = try(each.value.table_mappings, null)
-  target_endpoint_arn       = aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn
+  target_endpoint_arn       = try(aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.target_endpoint_key].endpoint_arn)
 
   tags = merge(var.tags, try(each.value.tags, {}))
 }
@@ -396,4 +419,245 @@ resource "aws_dms_certificate" "this" {
   certificate_wallet = lookup(each.value, "certificate_wallet", null)
 
   tags = merge(var.tags, try(each.value.tags, {}))
+}
+
+################################################################################
+# Access IAM Role
+################################################################################
+
+locals {
+  access_iam_role_name   = try(coalesce(var.access_iam_role_name, var.repl_instance_id), "")
+  create_access_iam_role = var.create && var.create_access_iam_role
+  create_access_policy   = local.create_access_iam_role && var.create_access_policy
+}
+
+data "aws_iam_policy_document" "access_assume" {
+  count = local.create_access_iam_role ? 1 : 0
+
+  statement {
+    sid = "DMSAssumeRole"
+    actions = [
+      "sts:AssumeRole",
+      "sts:TagSession",
+    ]
+
+    principals {
+      identifiers = [
+        "dms.${local.dns_suffix}",
+        "dms.${local.region}.${local.dns_suffix}",
+      ]
+      type = "Service"
+    }
+
+    # https://docs.aws.amazon.com/dms/latest/userguide/cross-service-confused-deputy-prevention.html#cross-service-confused-deputy-prevention-dms-api
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = ["arn:${local.partition}:dms:${local.region}:${local.account_id}:*"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [local.account_id]
+    }
+  }
+}
+
+resource "aws_iam_role" "access" {
+  count = local.create_access_iam_role ? 1 : 0
+
+  name        = var.access_iam_role_use_name_prefix ? null : local.access_iam_role_name
+  name_prefix = var.access_iam_role_use_name_prefix ? "${local.access_iam_role_name}-" : null
+  path        = var.access_iam_role_path
+  description = coalesce(var.access_iam_role_description, "Service access role")
+
+  assume_role_policy    = data.aws_iam_policy_document.access_assume[0].json
+  permissions_boundary  = var.access_iam_role_permissions_boundary
+  force_detach_policies = true
+
+  tags = merge(var.tags, var.access_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "access_additional" {
+  for_each = { for k, v in var.access_iam_role_policies : k => v if local.create_access_iam_role }
+
+  role       = aws_iam_role.access[0].name
+  policy_arn = each.value
+}
+
+data "aws_iam_policy_document" "access" {
+  count = local.create_access_policy ? 1 : 0
+
+  statement {
+    sid = "KMS"
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey",
+    ]
+    resources = coalescelist(
+      var.access_kms_key_arns,
+      ["arn:${local.partition}:kms:${local.region}:${local.account_id}:key/*"]
+    )
+  }
+
+  # https://docs.aws.amazon.com/dms/latest/userguide/security_iam_secretsmanager.html
+  dynamic "statement" {
+    for_each = length(var.access_secret_arns) > 0 ? [1] : []
+
+    content {
+      sid       = "SecretsManager"
+      actions   = ["secretsmanager:GetSecretValue"]
+      resources = var.access_secret_arns
+    }
+  }
+
+  # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.S3.html#CHAP_Source.S3.Prerequisites
+  dynamic "statement" {
+    for_each = length(var.access_source_s3_bucket_arns) > 0 ? [1] : []
+
+    content {
+      sid = "S3Source"
+      actions = [
+        "s3:ListBucket",
+        "s3:GetObject",
+        "S3:GetObjectVersion",
+      ]
+      resources = var.access_source_s3_bucket_arns
+    }
+  }
+
+  # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.S3.html#CHAP_Target.S3.Prerequisites
+  dynamic "statement" {
+    for_each = length(var.access_target_s3_bucket_arns) > 0 ? [1] : []
+
+    content {
+      sid = "S3Target"
+      actions = [
+        "s3:ListBucket",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:PutObjectTagging",
+      ]
+      resources = var.access_target_s3_bucket_arns
+    }
+  }
+
+  # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Elasticsearch.html#CHAP_Target.Elasticsearch.Prerequisites
+  dynamic "statement" {
+    for_each = length(var.access_target_elasticsearch_arns) > 0 ? [1] : []
+
+    content {
+      sid = "ElasticSearchTarget"
+      actions = [
+        "es:ESHttpDelete",
+        "es:ESHttpGet",
+        "es:ESHttpHead",
+        "es:ESHttpPost",
+        "es:ESHttpPut",
+      ]
+      resources = var.access_target_elasticsearch_arns
+    }
+  }
+
+  # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kinesis.html#CHAP_Target.Kinesis.Prerequisites
+  dynamic "statement" {
+    for_each = length(var.access_target_kinesis_arns) > 0 ? [1] : []
+
+    content {
+      sid = "KinesisTarget"
+      actions = [
+        "kinesis:DescribeStream",
+        "kinesis:PutRecord",
+        "kinesis:PutRecords",
+      ]
+      resources = var.access_target_kinesis_arns
+    }
+  }
+
+  dynamic "statement" {
+    for_each = length(var.access_target_dynamodb_table_arns) > 0 ? [1] : []
+
+    content {
+      sid       = "DynamoDBList"
+      actions   = ["dynamodb:ListTables"]
+      resources = ["*"]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = length(var.access_target_dynamodb_table_arns) > 0 ? [1] : []
+
+    content {
+      sid = "DynamoDBTarget"
+      actions = [
+        "dynamodb:PutItem",
+        "dynamodb:CreateTable",
+        "dynamodb:DescribeTable",
+        "dynamodb:DeleteTable",
+        "dynamodb:DeleteItem",
+        "dynamodb:UpdateItem"
+      ]
+      resources = var.access_target_dynamodb_table_arns
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.access_iam_statements
+
+    content {
+      sid           = try(statement.value.sid, null)
+      actions       = try(statement.value.actions, null)
+      not_actions   = try(statement.value.not_actions, null)
+      effect        = try(statement.value.effect, null)
+      resources     = try(statement.value.resources, null)
+      not_resources = try(statement.value.not_resources, null)
+
+      dynamic "principals" {
+        for_each = try(statement.value.principals, [])
+
+        content {
+          type        = principals.value.type
+          identifiers = principals.value.identifiers
+        }
+      }
+
+      dynamic "not_principals" {
+        for_each = try(statement.value.not_principals, [])
+
+        content {
+          type        = not_principals.value.type
+          identifiers = not_principals.value.identifiers
+        }
+      }
+
+      dynamic "condition" {
+        for_each = try(statement.value.conditions, [])
+
+        content {
+          test     = condition.value.test
+          values   = condition.value.values
+          variable = condition.value.variable
+        }
+      }
+    }
+  }
+}
+
+resource "aws_iam_policy" "access" {
+  count = local.create_access_policy ? 1 : 0
+
+  name        = var.access_iam_role_use_name_prefix ? null : local.access_iam_role_name
+  name_prefix = var.access_iam_role_use_name_prefix ? "${local.access_iam_role_name}-" : null
+  description = coalesce(var.access_iam_role_description, "Service access role IAM policy")
+  policy      = data.aws_iam_policy_document.access[0].json
+
+  tags = merge(var.tags, var.access_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "access" {
+  count = local.create_access_policy ? 1 : 0
+
+  role       = aws_iam_role.access[0].name
+  policy_arn = aws_iam_policy.access[0].arn
 }

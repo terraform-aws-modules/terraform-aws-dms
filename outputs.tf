@@ -130,3 +130,22 @@ output "certificates" {
   value       = aws_dms_certificate.this
   sensitive   = true
 }
+
+################################################################################
+# Access IAM Role
+################################################################################
+
+output "access_iam_role_name" {
+  description = "Access IAM role name"
+  value       = try(aws_iam_role.access[0].name, null)
+}
+
+output "access_iam_role_arn" {
+  description = "Access IAM role ARN"
+  value       = try(aws_iam_role.access[0].arn, null)
+}
+
+output "access_iam_role_unique_id" {
+  description = "Stable and unique string identifying the access IAM role"
+  value       = try(aws_iam_role.access[0].unique_id, null)
+}
