@@ -17,6 +17,24 @@ variable "create_iam_roles" {
   default     = true
 }
 
+variable "dms_access_for_endpoint_role_name" {
+  description = "Name of the DMS IAM role for endpoint access"
+  type        = string
+  default     = "dms-access-for-endpoint"
+}
+
+variable "dms_cloudwatch_logs_role_name" {
+  description = "Name of the DMS IAM role for CloudWatch logs"
+  type        = string
+  default     = "dms-cloudwatch-logs-role"
+}
+
+variable "dms_vpc_role_name" {
+  description = "Name of the DMS IAM role for VPC"
+  type        = string
+  default     = "dms-vpc-role"
+}
+
 variable "iam_role_permissions_boundary" {
   description = "ARN of the policy that is used to set the permissions boundary for the role"
   type        = string
