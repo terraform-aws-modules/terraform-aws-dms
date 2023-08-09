@@ -57,7 +57,7 @@ resource "time_sleep" "wait_for_dependency_resources" {
 resource "aws_iam_role" "dms_access_for_endpoint" {
   count = var.create && var.create_iam_roles ? 1 : 0
 
-  name                  = "dms-access-for-endpoint"
+  name                  = var.dms_access_for_endpoint_role_name
   description           = "DMS IAM role for endpoint access permissions"
   permissions_boundary  = var.iam_role_permissions_boundary
   assume_role_policy    = var.enable_redshift_target_permissions ? data.aws_iam_policy_document.dms_assume_role_redshift[0].json : data.aws_iam_policy_document.dms_assume_role[0].json
@@ -71,7 +71,7 @@ resource "aws_iam_role" "dms_access_for_endpoint" {
 resource "aws_iam_role" "dms_cloudwatch_logs_role" {
   count = var.create && var.create_iam_roles ? 1 : 0
 
-  name                  = "dms-cloudwatch-logs-role"
+  name                  = var.dms_cloudwatch_logs_role_name
   description           = "DMS IAM role for CloudWatch logs permissions"
   permissions_boundary  = var.iam_role_permissions_boundary
   assume_role_policy    = data.aws_iam_policy_document.dms_assume_role[0].json
@@ -85,7 +85,7 @@ resource "aws_iam_role" "dms_cloudwatch_logs_role" {
 resource "aws_iam_role" "dms_vpc_role" {
   count = var.create && var.create_iam_roles ? 1 : 0
 
-  name                  = "dms-vpc-role"
+  name                  = var.dms_vpc_role_name
   description           = "DMS IAM role for VPC permissions"
   permissions_boundary  = var.iam_role_permissions_boundary
   assume_role_policy    = data.aws_iam_policy_document.dms_assume_role[0].json
