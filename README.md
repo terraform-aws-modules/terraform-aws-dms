@@ -302,16 +302,16 @@ Examples codified under the [`examples`](https://github.com/terraform-aws-module
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.17 |
-| <a name="requirement_time"></a> [time](#requirement\_time) | >=0.7.2 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
+| <a name="requirement_time"></a> [time](#requirement\_time) | >= 0.9 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.17 |
-| <a name="provider_time"></a> [time](#provider\_time) | >=0.7.2 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0 |
+| <a name="provider_time"></a> [time](#provider\_time) | >= 0.9 |
 
 ## Modules
 
@@ -327,20 +327,46 @@ No modules.
 | [aws_dms_replication_instance.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dms_replication_instance) | resource |
 | [aws_dms_replication_subnet_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dms_replication_subnet_group) | resource |
 | [aws_dms_replication_task.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dms_replication_task) | resource |
+| [aws_dms_s3_endpoint.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dms_s3_endpoint) | resource |
+| [aws_iam_policy.access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role.access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.dms_access_for_endpoint](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.dms_cloudwatch_logs_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.dms_vpc_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.access_additional](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [time_sleep.wait_for_dependency_resources](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/sleep) | resource |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_iam_policy_document.access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.access_assume](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.dms_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.dms_assume_role_redshift](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_access_iam_role_description"></a> [access\_iam\_role\_description](#input\_access\_iam\_role\_description) | Description of the role | `string` | `null` | no |
+| <a name="input_access_iam_role_name"></a> [access\_iam\_role\_name](#input\_access\_iam\_role\_name) | Name to use on IAM role created | `string` | `null` | no |
+| <a name="input_access_iam_role_path"></a> [access\_iam\_role\_path](#input\_access\_iam\_role\_path) | IAM role path | `string` | `null` | no |
+| <a name="input_access_iam_role_permissions_boundary"></a> [access\_iam\_role\_permissions\_boundary](#input\_access\_iam\_role\_permissions\_boundary) | ARN of the policy that is used to set the permissions boundary for the IAM role | `string` | `null` | no |
+| <a name="input_access_iam_role_policies"></a> [access\_iam\_role\_policies](#input\_access\_iam\_role\_policies) | Map of IAM role policy ARNs to attach to the IAM role | `map(string)` | `{}` | no |
+| <a name="input_access_iam_role_tags"></a> [access\_iam\_role\_tags](#input\_access\_iam\_role\_tags) | A map of additional tags to add to the IAM role created | `map(string)` | `{}` | no |
+| <a name="input_access_iam_role_use_name_prefix"></a> [access\_iam\_role\_use\_name\_prefix](#input\_access\_iam\_role\_use\_name\_prefix) | Determines whether the IAM role name (`access_iam_role_name`) is used as a prefix | `bool` | `true` | no |
+| <a name="input_access_iam_statements"></a> [access\_iam\_statements](#input\_access\_iam\_statements) | A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage | `any` | `{}` | no |
+| <a name="input_access_kms_key_arns"></a> [access\_kms\_key\_arns](#input\_access\_kms\_key\_arns) | A list of KMS key ARNs the access IAM role is permitted to decrypt | `list(string)` | `[]` | no |
+| <a name="input_access_secret_arns"></a> [access\_secret\_arns](#input\_access\_secret\_arns) | A list of SecretManager secret ARNs the access IAM role is permitted to access | `list(string)` | `[]` | no |
+| <a name="input_access_source_s3_bucket_arns"></a> [access\_source\_s3\_bucket\_arns](#input\_access\_source\_s3\_bucket\_arns) | A list of S3 bucket ARNs the access IAM role is permitted to access | `list(string)` | `[]` | no |
+| <a name="input_access_target_dynamodb_table_arns"></a> [access\_target\_dynamodb\_table\_arns](#input\_access\_target\_dynamodb\_table\_arns) | A list of DynamoDB table ARNs the access IAM role is permitted to access | `list(string)` | `[]` | no |
+| <a name="input_access_target_elasticsearch_arns"></a> [access\_target\_elasticsearch\_arns](#input\_access\_target\_elasticsearch\_arns) | A list of Elasticsearch ARNs the access IAM role is permitted to access | `list(string)` | `[]` | no |
+| <a name="input_access_target_kinesis_arns"></a> [access\_target\_kinesis\_arns](#input\_access\_target\_kinesis\_arns) | A list of Kinesis ARNs the access IAM role is permitted to access | `list(string)` | `[]` | no |
+| <a name="input_access_target_s3_bucket_arns"></a> [access\_target\_s3\_bucket\_arns](#input\_access\_target\_s3\_bucket\_arns) | A list of S3 bucket ARNs the access IAM role is permitted to access | `list(string)` | `[]` | no |
 | <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of objects that define the certificates to be created | `map(any)` | `{}` | no |
 | <a name="input_create"></a> [create](#input\_create) | Determines whether resources will be created | `bool` | `true` | no |
+| <a name="input_create_access_iam_role"></a> [create\_access\_iam\_role](#input\_create\_access\_iam\_role) | Determines whether the ECS task definition IAM role should be created | `bool` | `true` | no |
+| <a name="input_create_access_policy"></a> [create\_access\_policy](#input\_create\_access\_policy) | Determines whether the IAM policy should be created | `bool` | `true` | no |
 | <a name="input_create_iam_roles"></a> [create\_iam\_roles](#input\_create\_iam\_roles) | Determines whether the required [DMS IAM resources](https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Security.html#CHAP_Security.APIRole) will be created | `bool` | `true` | no |
 | <a name="input_create_repl_subnet_group"></a> [create\_repl\_subnet\_group](#input\_create\_repl\_subnet\_group) | Determines whether the replication subnet group will be created | `bool` | `true` | no |
 | <a name="input_enable_redshift_target_permissions"></a> [enable\_redshift\_target\_permissions](#input\_enable\_redshift\_target\_permissions) | Determines whether `redshift.amazonaws.com` is permitted access to assume the `dms-access-for-endpoint` role | `bool` | `false` | no |
@@ -350,9 +376,9 @@ No modules.
 | <a name="input_iam_role_permissions_boundary"></a> [iam\_role\_permissions\_boundary](#input\_iam\_role\_permissions\_boundary) | ARN of the policy that is used to set the permissions boundary for the role | `string` | `null` | no |
 | <a name="input_iam_role_tags"></a> [iam\_role\_tags](#input\_iam\_role\_tags) | A map of additional tags to apply to the DMS IAM roles | `map(string)` | `{}` | no |
 | <a name="input_repl_instance_allocated_storage"></a> [repl\_instance\_allocated\_storage](#input\_repl\_instance\_allocated\_storage) | The amount of storage (in gigabytes) to be initially allocated for the replication instance. Min: 5, Max: 6144, Default: 50 | `number` | `null` | no |
-| <a name="input_repl_instance_allow_major_version_upgrade"></a> [repl\_instance\_allow\_major\_version\_upgrade](#input\_repl\_instance\_allow\_major\_version\_upgrade) | Indicates that major version upgrades are allowed | `bool` | `null` | no |
+| <a name="input_repl_instance_allow_major_version_upgrade"></a> [repl\_instance\_allow\_major\_version\_upgrade](#input\_repl\_instance\_allow\_major\_version\_upgrade) | Indicates that major version upgrades are allowed | `bool` | `true` | no |
 | <a name="input_repl_instance_apply_immediately"></a> [repl\_instance\_apply\_immediately](#input\_repl\_instance\_apply\_immediately) | Indicates whether the changes should be applied immediately or during the next maintenance window | `bool` | `null` | no |
-| <a name="input_repl_instance_auto_minor_version_upgrade"></a> [repl\_instance\_auto\_minor\_version\_upgrade](#input\_repl\_instance\_auto\_minor\_version\_upgrade) | Indicates that minor engine upgrades will be applied automatically to the replication instance during the maintenance window | `bool` | `null` | no |
+| <a name="input_repl_instance_auto_minor_version_upgrade"></a> [repl\_instance\_auto\_minor\_version\_upgrade](#input\_repl\_instance\_auto\_minor\_version\_upgrade) | Indicates that minor engine upgrades will be applied automatically to the replication instance during the maintenance window | `bool` | `true` | no |
 | <a name="input_repl_instance_availability_zone"></a> [repl\_instance\_availability\_zone](#input\_repl\_instance\_availability\_zone) | The EC2 Availability Zone that the replication instance will be created in | `string` | `null` | no |
 | <a name="input_repl_instance_class"></a> [repl\_instance\_class](#input\_repl\_instance\_class) | The compute and memory capacity of the replication instance as specified by the replication instance class | `string` | `null` | no |
 | <a name="input_repl_instance_engine_version"></a> [repl\_instance\_engine\_version](#input\_repl\_instance\_engine\_version) | The [engine version](https://docs.aws.amazon.com/dms/latest/userguide/CHAP_ReleaseNotes.html) number of the replication instance | `string` | `null` | no |
@@ -370,12 +396,16 @@ No modules.
 | <a name="input_repl_subnet_group_subnet_ids"></a> [repl\_subnet\_group\_subnet\_ids](#input\_repl\_subnet\_group\_subnet\_ids) | A list of the EC2 subnet IDs for the subnet group | `list(string)` | `[]` | no |
 | <a name="input_repl_subnet_group_tags"></a> [repl\_subnet\_group\_tags](#input\_repl\_subnet\_group\_tags) | A map of additional tags to apply to the replication subnet group | `map(string)` | `{}` | no |
 | <a name="input_replication_tasks"></a> [replication\_tasks](#input\_replication\_tasks) | Map of objects that define the replication tasks to be created | `any` | `{}` | no |
+| <a name="input_s3_endpoints"></a> [s3\_endpoints](#input\_s3\_endpoints) | Map of objects that define the S3 endpoints to be created | `any` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to use on all resources | `map(string)` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
+| <a name="output_access_iam_role_arn"></a> [access\_iam\_role\_arn](#output\_access\_iam\_role\_arn) | Access IAM role ARN |
+| <a name="output_access_iam_role_name"></a> [access\_iam\_role\_name](#output\_access\_iam\_role\_name) | Access IAM role name |
+| <a name="output_access_iam_role_unique_id"></a> [access\_iam\_role\_unique\_id](#output\_access\_iam\_role\_unique\_id) | Stable and unique string identifying the access IAM role |
 | <a name="output_certificates"></a> [certificates](#output\_certificates) | A map of maps containing the certificates created and their full output of attributes and values |
 | <a name="output_dms_access_for_endpoint_iam_role_arn"></a> [dms\_access\_for\_endpoint\_iam\_role\_arn](#output\_dms\_access\_for\_endpoint\_iam\_role\_arn) | Amazon Resource Name (ARN) specifying the role |
 | <a name="output_dms_access_for_endpoint_iam_role_id"></a> [dms\_access\_for\_endpoint\_iam\_role\_id](#output\_dms\_access\_for\_endpoint\_iam\_role\_id) | Name of the IAM role |
@@ -394,6 +424,7 @@ No modules.
 | <a name="output_replication_instance_tags_all"></a> [replication\_instance\_tags\_all](#output\_replication\_instance\_tags\_all) | A map of tags assigned to the resource, including those inherited from the provider `default_tags` configuration block |
 | <a name="output_replication_subnet_group_id"></a> [replication\_subnet\_group\_id](#output\_replication\_subnet\_group\_id) | The ID of the subnet group |
 | <a name="output_replication_tasks"></a> [replication\_tasks](#output\_replication\_tasks) | A map of maps containing the replication tasks created and their full output of attributes and values |
+| <a name="output_s3_endpoints"></a> [s3\_endpoints](#output\_s3\_endpoints) | A map of maps containing the S3 endpoints created and their full output of attributes and values |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## License

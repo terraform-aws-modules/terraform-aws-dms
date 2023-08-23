@@ -10,7 +10,12 @@ variable "tags" {
   default     = {}
 }
 
-# IAM roles
+################################################################################
+# IAM Roles
+# https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Security.html#CHAP_Security.APIRole
+# Issue: https://github.com/hashicorp/terraform-provider-aws/issues/19580
+################################################################################
+
 variable "create_iam_roles" {
   description = "Determines whether the required [DMS IAM resources](https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Security.html#CHAP_Security.APIRole) will be created"
   type        = bool
@@ -35,7 +40,10 @@ variable "enable_redshift_target_permissions" {
   default     = false
 }
 
+################################################################################
 # Subnet group
+################################################################################
+
 variable "create_repl_subnet_group" {
   description = "Determines whether the replication subnet group will be created"
   type        = bool
@@ -66,7 +74,10 @@ variable "repl_subnet_group_tags" {
   default     = {}
 }
 
+################################################################################
 # Instance
+################################################################################
+
 variable "repl_instance_allocated_storage" {
   description = "The amount of storage (in gigabytes) to be initially allocated for the replication instance. Min: 5, Max: 6144, Default: 50"
   type        = number
@@ -76,13 +87,13 @@ variable "repl_instance_allocated_storage" {
 variable "repl_instance_auto_minor_version_upgrade" {
   description = "Indicates that minor engine upgrades will be applied automatically to the replication instance during the maintenance window"
   type        = bool
-  default     = null
+  default     = true
 }
 
 variable "repl_instance_allow_major_version_upgrade" {
   description = "Indicates that major version upgrades are allowed"
   type        = bool
-  default     = null
+  default     = true
 }
 
 variable "repl_instance_apply_immediately" {
@@ -163,22 +174,40 @@ variable "repl_instance_timeouts" {
   default     = {}
 }
 
-# Replication Tasks
-variable "replication_tasks" {
-  description = "Map of objects that define the replication tasks to be created"
-  type        = any
-  default     = {}
-}
+################################################################################
+# Endpoint
+################################################################################
 
-
-# Endpoints
 variable "endpoints" {
   description = "Map of objects that define the endpoints to be created"
   type        = any
   default     = {}
 }
 
-# Event Subscriptions
+################################################################################
+# S3 Endpoint
+################################################################################
+
+variable "s3_endpoints" {
+  description = "Map of objects that define the S3 endpoints to be created"
+  type        = any
+  default     = {}
+}
+
+################################################################################
+# Replication Task
+################################################################################
+
+variable "replication_tasks" {
+  description = "Map of objects that define the replication tasks to be created"
+  type        = any
+  default     = {}
+}
+
+################################################################################
+# Event Subscription
+################################################################################
+
 variable "event_subscriptions" {
   description = "Map of objects that define the event subscriptions to be created"
   type        = any
@@ -191,9 +220,118 @@ variable "event_subscription_timeouts" {
   default     = {}
 }
 
-# Certificates
+################################################################################
+# Certificate
+################################################################################
+
 variable "certificates" {
   description = "Map of objects that define the certificates to be created"
   type        = map(any)
   default     = {}
+}
+
+################################################################################
+# Access IAM Role
+################################################################################
+
+variable "create_access_iam_role" {
+  description = "Determines whether the ECS task definition IAM role should be created"
+  type        = bool
+  default     = true
+}
+
+variable "access_iam_role_name" {
+  description = "Name to use on IAM role created"
+  type        = string
+  default     = null
+}
+
+variable "access_iam_role_use_name_prefix" {
+  description = "Determines whether the IAM role name (`access_iam_role_name`) is used as a prefix"
+  type        = bool
+  default     = true
+}
+
+variable "access_iam_role_path" {
+  description = "IAM role path"
+  type        = string
+  default     = null
+}
+
+variable "access_iam_role_description" {
+  description = "Description of the role"
+  type        = string
+  default     = null
+}
+
+variable "access_iam_role_permissions_boundary" {
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role"
+  type        = string
+  default     = null
+}
+
+variable "access_iam_role_tags" {
+  description = "A map of additional tags to add to the IAM role created"
+  type        = map(string)
+  default     = {}
+}
+
+variable "access_iam_role_policies" {
+  description = "Map of IAM role policy ARNs to attach to the IAM role"
+  type        = map(string)
+  default     = {}
+}
+
+variable "create_access_policy" {
+  description = "Determines whether the IAM policy should be created"
+  type        = bool
+  default     = true
+}
+
+variable "access_iam_statements" {
+  description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
+  type        = any
+  default     = {}
+}
+
+variable "access_kms_key_arns" {
+  description = "A list of KMS key ARNs the access IAM role is permitted to decrypt"
+  type        = list(string)
+  default     = []
+}
+
+variable "access_secret_arns" {
+  description = "A list of SecretManager secret ARNs the access IAM role is permitted to access"
+  type        = list(string)
+  default     = []
+}
+
+variable "access_source_s3_bucket_arns" {
+  description = "A list of S3 bucket ARNs the access IAM role is permitted to access"
+  type        = list(string)
+  default     = []
+}
+
+variable "access_target_s3_bucket_arns" {
+  description = "A list of S3 bucket ARNs the access IAM role is permitted to access"
+  type        = list(string)
+  default     = []
+}
+
+variable "access_target_elasticsearch_arns" {
+  description = "A list of Elasticsearch ARNs the access IAM role is permitted to access"
+  type        = list(string)
+  default     = []
+}
+
+variable "access_target_kinesis_arns" {
+  description = "A list of Kinesis ARNs the access IAM role is permitted to access"
+  type        = list(string)
+  default     = []
+}
+
+variable "access_target_dynamodb_table_arns" {
+  description = "A list of DynamoDB table ARNs the access IAM role is permitted to access"
+  type        = list(string)
+  default     = []
 }

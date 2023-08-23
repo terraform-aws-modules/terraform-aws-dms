@@ -1,5 +1,8 @@
-# IAM roles
-### DMS Endpoint
+################################################################################
+# IAM Roles
+################################################################################
+
+# DMS Endpoint
 output "dms_access_for_endpoint_iam_role_arn" {
   description = "Amazon Resource Name (ARN) specifying the role"
   value       = module.dms_aurora_postgresql_aurora_mysql.dms_access_for_endpoint_iam_role_arn
@@ -15,7 +18,7 @@ output "dms_access_for_endpoint_iam_role_unique_id" {
   value       = module.dms_aurora_postgresql_aurora_mysql.dms_access_for_endpoint_iam_role_unique_id
 }
 
-### DMS CloudWatch Logs
+# DMS CloudWatch Logs
 output "dms_cloudwatch_logs_iam_role_arn" {
   description = "Amazon Resource Name (ARN) specifying the role"
   value       = module.dms_aurora_postgresql_aurora_mysql.dms_cloudwatch_logs_iam_role_arn
@@ -31,7 +34,7 @@ output "dms_cloudwatch_logs_iam_role_unique_id" {
   value       = module.dms_aurora_postgresql_aurora_mysql.dms_cloudwatch_logs_iam_role_unique_id
 }
 
-### DMS VPC
+# DMS VPC
 output "dms_vpc_iam_role_arn" {
   description = "Amazon Resource Name (ARN) specifying the role"
   value       = module.dms_aurora_postgresql_aurora_mysql.dms_vpc_iam_role_arn
@@ -47,13 +50,19 @@ output "dms_vpc_iam_role_unique_id" {
   value       = module.dms_aurora_postgresql_aurora_mysql.dms_vpc_iam_role_unique_id
 }
 
+################################################################################
 # Subnet group
+################################################################################
+
 output "replication_subnet_group_id" {
   description = "The ID of the subnet group"
   value       = module.dms_aurora_postgresql_aurora_mysql.replication_subnet_group_id
 }
 
+################################################################################
 # Instance
+################################################################################
+
 output "replication_instance_arn" {
   description = "The Amazon Resource Name (ARN) of the replication instance"
   value       = module.dms_aurora_postgresql_aurora_mysql.replication_instance_arn
@@ -74,26 +83,48 @@ output "replication_instance_tags_all" {
   value       = module.dms_aurora_postgresql_aurora_mysql.replication_instance_tags_all
 }
 
-# Replication Tasks
-output "replication_tasks" {
-  description = "A map of maps containing the replication tasks created and their full output of attributes and values"
-  value       = module.dms_aurora_postgresql_aurora_mysql.replication_tasks
-}
+################################################################################
+# Endpoint
+################################################################################
 
-# Endpoints
 output "endpoints" {
   description = "A map of maps containing the endpoints created and their full output of attributes and values"
   value       = module.dms_aurora_postgresql_aurora_mysql.endpoints
   sensitive   = true
 }
 
-# Event Subscriptions
+################################################################################
+# S3 Endpoint
+################################################################################
+
+output "s3_endpoints" {
+  description = "A map of maps containing the S3 endpoints created and their full output of attributes and values"
+  value       = module.dms_aurora_postgresql_aurora_mysql.s3_endpoints
+  sensitive   = true
+}
+
+################################################################################
+# Replication Task
+################################################################################
+
+output "replication_tasks" {
+  description = "A map of maps containing the replication tasks created and their full output of attributes and values"
+  value       = module.dms_aurora_postgresql_aurora_mysql.replication_tasks
+}
+
+################################################################################
+# Event Subscription
+################################################################################
+
 output "event_subscriptions" {
   description = "A map of maps containing the event subscriptions created and their full output of attributes and values"
   value       = module.dms_aurora_postgresql_aurora_mysql.event_subscriptions
 }
 
-# Certificates
+################################################################################
+# Certificate
+################################################################################
+
 output "certificates" {
   description = "A map of maps containing the certificates created and their full output of attributes and values"
   value       = module.dms_aurora_postgresql_aurora_mysql.certificates
