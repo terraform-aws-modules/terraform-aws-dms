@@ -45,7 +45,7 @@ Note that this example may create resources which will incur monetary charges on
 | <a name="module_dms_aurora_postgresql_aurora_mysql"></a> [dms\_aurora\_postgresql\_aurora\_mysql](#module\_dms\_aurora\_postgresql\_aurora\_mysql) | ../.. | n/a |
 | <a name="module_dms_default"></a> [dms\_default](#module\_dms\_default) | ../.. | n/a |
 | <a name="module_dms_disabled"></a> [dms\_disabled](#module\_dms\_disabled) | ../.. | n/a |
-| <a name="module_msk_cluster"></a> [msk\_cluster](#module\_msk\_cluster) | clowdhaus/msk-kafka-cluster/aws | ~> 2.0 |
+| <a name="module_msk_cluster"></a> [msk\_cluster](#module\_msk\_cluster) | terraform-aws-modules/msk-kafka-cluster/aws | ~> 2.0 |
 | <a name="module_rds_aurora"></a> [rds\_aurora](#module\_rds\_aurora) | terraform-aws-modules/rds-aurora/aws | ~> 8.0 |
 | <a name="module_s3_bucket"></a> [s3\_bucket](#module\_s3\_bucket) | terraform-aws-modules/s3-bucket/aws | ~> 3.1 |
 | <a name="module_secrets_manager_msk"></a> [secrets\_manager\_msk](#module\_secrets\_manager\_msk) | terraform-aws-modules/secrets-manager/aws | ~> 1.0 |

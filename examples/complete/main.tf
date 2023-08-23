@@ -413,7 +413,7 @@ resource "aws_s3_object" "hr_data" {
 }
 
 module "msk_cluster" {
-  source  = "clowdhaus/msk-kafka-cluster/aws"
+  source  = "terraform-aws-modules/msk-kafka-cluster/aws"
   version = "~> 2.0"
 
   name                   = local.name
