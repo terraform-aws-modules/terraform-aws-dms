@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.6.1...v2.0.0) (2023-08-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* Update AWS provider to support `v5.0` and increase Terraform MSV to `1.0` (#42)
+
+### Features
+
+* Update AWS provider to support `v5.0` and increase Terraform MSV to `1.0` ([#42](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/42)) ([6fea0da](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/6fea0dab2aa25a91d0d794942a5c184342924b48))
+
+
+### Bug Fixes
+
+* Fixes small README typos ([#37](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/37)) ([f67f77d](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/f67f77dab595457eb65bb0b9e3b9dc170bbeb354))
+
 ### [1.6.1](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.6.0...v1.6.1) (2022-11-07)
 
 
