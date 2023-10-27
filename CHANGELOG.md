@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [2.0.1](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.0.0...v2.0.1) (2023-10-27)
+
+
+### Bug Fixes
+
+* Add conditional to access IAM role when used as fallback value ([#48](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/48)) ([3695079](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/369507990a61b98947c67654dbbf5d49cc862914))
+
 ## [2.0.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v1.6.1...v2.0.0) (2023-08-23)
 
 
