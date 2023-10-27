@@ -232,7 +232,7 @@ resource "aws_dms_endpoint" "this" {
       include_transaction_details    = try(kinesis_settings.value.include_transaction_details, null)
       message_format                 = try(kinesis_settings.value.message_format, null)
       partition_include_schema_table = try(kinesis_settings.value.partition_include_schema_table, null)
-      service_access_role_arn        = lookup(kinesis_settings.value, "service_access_role_arn", aws_iam_role.access[0].arn)
+      service_access_role_arn        = lookup(kinesis_settings.value, "service_access_role_arn", local.access_iam_role)
       stream_arn                     = lookup(kinesis_settings.value, "stream_arn", null)
     }
   }
@@ -282,10 +282,10 @@ resource "aws_dms_endpoint" "this" {
     }
   }
 
-  secrets_manager_access_role_arn = lookup(each.value, "secrets_manager_arn", null) != null ? lookup(each.value, "secrets_manager_access_role_arn", aws_iam_role.access[0].arn) : null
+  secrets_manager_access_role_arn = lookup(each.value, "secrets_manager_arn", null) != null ? lookup(each.value, "secrets_manager_access_role_arn", local.access_iam_role) : null
   secrets_manager_arn             = lookup(each.value, "secrets_manager_arn", null)
   server_name                     = lookup(each.value, "server_name", null)
-  service_access_role             = lookup(each.value, "service_access_role", aws_iam_role.access[0].arn)
+  service_access_role             = lookup(each.value, "service_access_role", local.access_iam_role)
   ssl_mode                        = try(each.value.ssl_mode, null)
   username                        = try(each.value.username, null)
 
@@ -344,7 +344,7 @@ resource "aws_dms_s3_endpoint" "this" {
   rfc_4180                                    = try(each.value.rfc_4180, null)
   row_group_length                            = try(each.value.row_group_length, null)
   server_side_encryption_kms_key_id           = lookup(each.value, "server_side_encryption_kms_key_id", null)
-  service_access_role_arn                     = lookup(each.value, "service_access_role_arn", aws_iam_role.access[0].arn)
+  service_access_role_arn                     = lookup(each.value, "service_access_role_arn", local.access_iam_role)
   timestamp_column_name                       = try(each.value.timestamp_column_name, null)
   use_csv_no_sup_value                        = try(each.value.use_csv_no_sup_value, null)
   use_task_start_time_for_full_load_timestamp = try(each.value.use_task_start_time_for_full_load_timestamp, null)
@@ -429,6 +429,8 @@ locals {
   access_iam_role_name   = try(coalesce(var.access_iam_role_name, var.repl_instance_id), "")
   create_access_iam_role = var.create && var.create_access_iam_role
   create_access_policy   = local.create_access_iam_role && var.create_access_policy
+
+  access_iam_role = local.create_access_iam_role ? aws_iam_role.access[0].arn : null
 }
 
 data "aws_iam_policy_document" "access_assume" {
