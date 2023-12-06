@@ -9,7 +9,7 @@ See [`examples`](https://github.com/terraform-aws-modules/terraform-aws-dms/tree
 ```hcl
 module "database_migration_service" {
   source  = "terraform-aws-modules/dms/aws"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   # Subnet group
   repl_subnet_group_name        = "example"
@@ -144,7 +144,7 @@ Given the following example (not complete, only showing the relevant attributes)
 ```hcl
 module "database_migration_service" {
   source  = "terraform-aws-modules/dms/aws"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   # This value is used when subscribing to instance event notifications
   repl_instance_id = "readme-example"
