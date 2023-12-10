@@ -21,7 +21,7 @@ module "database_migration_service" {
   repl_instance_auto_minor_version_upgrade   = true
   repl_instance_allow_major_version_upgrade  = true
   repl_instance_apply_immediately            = true
-  repl_instance_engine_version               = "3.4.5"
+  repl_instance_engine_version               = "3.5.2"
   repl_instance_multi_az                     = true
   repl_instance_preferred_maintenance_window = "sun:10:30-sun:14:30"
   repl_instance_publicly_accessible          = false
