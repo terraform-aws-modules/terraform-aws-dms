@@ -237,10 +237,6 @@ module "dms_aurora_postgresql_aurora_mysql" {
 # Supporting Resources
 ################################################################################
 
-resource "random_pet" "this" {
-  length = 2
-}
-
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
