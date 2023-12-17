@@ -303,14 +303,14 @@ Examples codified under the [`examples`](https://github.com/terraform-aws-module
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.31 |
 | <a name="requirement_time"></a> [time](#requirement\_time) | >= 0.9 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.31 |
 | <a name="provider_time"></a> [time](#provider\_time) | >= 0.9 |
 
 ## Modules
@@ -385,6 +385,7 @@ No modules.
 | <a name="input_repl_instance_id"></a> [repl\_instance\_id](#input\_repl\_instance\_id) | The replication instance identifier. This parameter is stored as a lowercase string | `string` | `null` | no |
 | <a name="input_repl_instance_kms_key_arn"></a> [repl\_instance\_kms\_key\_arn](#input\_repl\_instance\_kms\_key\_arn) | The Amazon Resource Name (ARN) for the KMS key that will be used to encrypt the connection parameters | `string` | `null` | no |
 | <a name="input_repl_instance_multi_az"></a> [repl\_instance\_multi\_az](#input\_repl\_instance\_multi\_az) | Specifies if the replication instance is a multi-az deployment. You cannot set the `availability_zone` parameter if the `multi_az` parameter is set to `true` | `bool` | `null` | no |
+| <a name="input_repl_instance_network_type"></a> [repl\_instance\_network\_type](#input\_repl\_instance\_network\_type) | The type of IP address protocol used by a replication instance. Valid values: IPV4, DUAL | `string` | `null` | no |
 | <a name="input_repl_instance_preferred_maintenance_window"></a> [repl\_instance\_preferred\_maintenance\_window](#input\_repl\_instance\_preferred\_maintenance\_window) | The weekly time range during which system maintenance can occur, in Universal Coordinated Time (UTC) | `string` | `null` | no |
 | <a name="input_repl_instance_publicly_accessible"></a> [repl\_instance\_publicly\_accessible](#input\_repl\_instance\_publicly\_accessible) | Specifies the accessibility options for the replication instance | `bool` | `null` | no |
 | <a name="input_repl_instance_subnet_group_id"></a> [repl\_instance\_subnet\_group\_id](#input\_repl\_instance\_subnet\_group\_id) | An existing subnet group to associate with the replication instance | `string` | `null` | no |

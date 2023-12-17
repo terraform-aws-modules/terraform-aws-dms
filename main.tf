@@ -149,6 +149,7 @@ resource "aws_dms_replication_instance" "this" {
   engine_version               = var.repl_instance_engine_version
   kms_key_arn                  = var.repl_instance_kms_key_arn
   multi_az                     = var.repl_instance_multi_az
+  network_type                 = var.repl_instance_network_type
   preferred_maintenance_window = var.repl_instance_preferred_maintenance_window
   publicly_accessible          = var.repl_instance_publicly_accessible
   replication_instance_class   = var.repl_instance_class
@@ -186,6 +187,7 @@ resource "aws_dms_endpoint" "this" {
       error_retry_duration       = try(elasticsearch_settings.value.error_retry_duration, null)
       full_load_error_percentage = try(elasticsearch_settings.value.full_load_error_percentage, null)
       service_access_role_arn    = lookup(elasticsearch_settings.value, "service_access_role_arn", aws_iam_role.access[0].arn)
+      use_new_mapping_type       = try(elasticsearch_settings.value.use_new_mapping_type, null)
     }
   }
 
@@ -253,8 +255,32 @@ resource "aws_dms_endpoint" "this" {
     }
   }
 
-  password = lookup(each.value, "password", null)
-  port     = try(each.value.port, null)
+  password                = lookup(each.value, "password", null)
+  pause_replication_tasks = try(each.value.pause_replication_tasks, null)
+  port                    = try(each.value.port, null)
+
+  # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.PostgreSQL.html
+  dynamic "postgres_settings" {
+    for_each = length(lookup(each.value, "postgres_settings", [])) > 0 ? [each.value.postgres_settings] : []
+    content {
+      after_connect_script         = try(postgres_settings.value.after_connect_script, null)
+      babelfish_database_name      = try(postgres_settings.value.babelfish_database_name, null)
+      capture_ddls                 = try(postgres_settings.value.capture_ddls, null)
+      database_mode                = try(postgres_settings.value.database_mode, null)
+      ddl_artifacts_schema         = try(postgres_settings.value.ddl_artifacts_schema, null)
+      execute_timeout              = try(postgres_settings.value.execute_timeout, null)
+      fail_tasks_on_lob_truncation = try(postgres_settings.value.fail_tasks_on_lob_truncation, null)
+      heartbeat_enable             = try(postgres_settings.value.heartbeat_enable, null)
+      heartbeat_frequency          = try(postgres_settings.value.heartbeat_frequency, null)
+      heartbeat_schema             = try(postgres_settings.value.heartbeat_schema, null)
+      map_boolean_as_boolean       = try(postgres_settings.value.map_boolean_as_boolean, null)
+      map_jsonb_as_clob            = try(postgres_settings.value.map_jsonb_as_clob, null)
+      map_long_varchar_as          = try(postgres_settings.value.map_long_varchar_as, null)
+      max_file_size                = try(postgres_settings.value.max_file_size, null)
+      plugin_name                  = try(postgres_settings.value.plugin_name, null)
+      slot_name                    = try(postgres_settings.value.slot_name, null)
+    }
+  }
 
   dynamic "redis_settings" {
     for_each = length(lookup(each.value, "redis_settings", [])) > 0 ? [each.value.redis_settings] : []
@@ -335,6 +361,7 @@ resource "aws_dms_s3_endpoint" "this" {
   encryption_mode                             = try(each.value.encryption_mode, null)
   expected_bucket_owner                       = try(each.value.expected_bucket_owner, null)
   external_table_definition                   = try(each.value.external_table_definition, null)
+  glue_catalog_generation                     = try(each.value.glue_catalog_generation, null)
   ignore_header_rows                          = try(each.value.ignore_header_rows, null)
   include_op_for_full_load                    = try(each.value.include_op_for_full_load, null)
   max_file_size                               = try(each.value.max_file_size, null)

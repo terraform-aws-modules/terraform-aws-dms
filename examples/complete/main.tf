@@ -134,6 +134,11 @@ module "dms_aurora_postgresql_aurora_mysql" {
       extra_connection_attributes = "heartbeatFrequency=1;secretsManagerEndpointOverride=${module.vpc_endpoints.endpoints["secretsmanager"]["dns_entry"][0]["dns_name"]}"
       secrets_manager_arn         = module.secrets_manager_postgresql.secret_arn
 
+      postgres_settings = {
+        capture_ddls     = true
+        heartbeat_enable = false
+      }
+
       tags = { EndpointType = "postgresql-source" }
     }
 
