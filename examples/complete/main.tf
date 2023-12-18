@@ -135,8 +135,9 @@ module "dms_aurora_postgresql_aurora_mysql" {
       secrets_manager_arn         = module.secrets_manager_postgresql.secret_arn
 
       postgres_settings = {
-        capture_ddls     = true
-        heartbeat_enable = false
+        capture_ddls        = false
+        heartbeat_enable    = true
+        heartbeat_frequency = 1
       }
 
       tags = { EndpointType = "postgresql-source" }
