@@ -126,6 +126,12 @@ variable "repl_instance_multi_az" {
   default     = null
 }
 
+variable "repl_instance_network_type" {
+  description = "The type of IP address protocol used by a replication instance. Valid values: IPV4, DUAL"
+  type        = string
+  default     = null
+}
+
 variable "repl_instance_preferred_maintenance_window" {
   description = "The weekly time range during which system maintenance can occur, in Universal Coordinated Time (UTC)"
   type        = string
