@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.0.1...v2.1.0) (2023-12-22)
+
+
+### Features
+
+* DMS Endpoint `postgres_settings` ([#54](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/54)) ([9dd4bf1](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/9dd4bf16b03d5b811a4ed4843ba1e23855736ce4))
+
 ### [2.0.1](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.0.0...v2.0.1) (2023-10-27)
 
 
