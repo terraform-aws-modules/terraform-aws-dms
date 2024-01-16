@@ -139,7 +139,7 @@ resource "aws_dms_replication_subnet_group" "this" {
 ################################################################################
 
 resource "aws_dms_replication_instance" "this" {
-  count = var.create ? 1 : 0
+  count = var.create && var.create_repl_instance ? 1 : 0
 
   allocated_storage            = var.repl_instance_allocated_storage
   allow_major_version_upgrade  = var.repl_instance_allow_major_version_upgrade
@@ -380,11 +380,11 @@ resource "aws_dms_s3_endpoint" "this" {
 }
 
 ################################################################################
-# Replication Task
+# Replication Task - Instance
 ################################################################################
 
 resource "aws_dms_replication_task" "this" {
-  for_each = { for k, v in var.replication_tasks : k => v if var.create }
+  for_each = { for k, v in var.replication_tasks : k => v if var.create && v.serverless_config == null }
 
   cdc_start_position        = try(each.value.cdc_start_position, null)
   cdc_start_time            = try(each.value.cdc_start_time, null)
@@ -399,6 +399,41 @@ resource "aws_dms_replication_task" "this" {
 
   tags = merge(var.tags, try(each.value.tags, {}))
 }
+
+################################################################################
+# Replication Task - Serverless
+################################################################################
+resource "aws_dms_replication_config" "this" {
+  for_each = { for k, v in var.replication_tasks : k => v if var.create && v.serverless_config != null }
+
+  replication_config_identifier = each.value.replication_task_id
+  resource_identifier           = each.value.replication_task_id
+
+  replication_type    = each.value.migration_type
+  source_endpoint_arn = try(aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.source_endpoint_key].endpoint_arn)
+  target_endpoint_arn = try(aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.target_endpoint_key].endpoint_arn)
+  table_mappings      = try(each.value.table_mappings, null)
+
+  replication_settings  = try(each.value.replication_task_settings, null)
+  supplemental_settings = try(each.value.supplemental_task_settings, null)
+
+  start_replication = try(each.value.start_replication_task, null)
+
+  compute_config {
+    availability_zone            = try(each.value.serverless_config.availability_zone, null)
+    dns_name_servers             = try(each.value.serverless_config.dns_name_servers, null)
+    kms_key_id                   = try(each.value.serverless_config.kms_key_id, null)
+    max_capacity_units           = each.value.serverless_config.max_capacity_units
+    min_capacity_units           = try(each.value.serverless_config.min_capacity_units, null)
+    multi_az                     = try(each.value.serverless_config.multi_az, null)
+    preferred_maintenance_window = try(each.value.serverless_config.preferred_maintenance_window, null)
+    replication_subnet_group_id  = local.subnet_group_id
+    vpc_security_group_ids       = try(each.value.serverless_config.vpc_security_group_ids, null)
+  }
+
+  tags = merge(var.tags, try(each.value.tags, {}))
+}
+
 
 ################################################################################
 # Event Subscription
