@@ -384,7 +384,7 @@ resource "aws_dms_s3_endpoint" "this" {
 ################################################################################
 
 resource "aws_dms_replication_task" "this" {
-  for_each = { for k, v in var.replication_tasks : k => v if var.create && v.serverless_config == null }
+  for_each = { for k, v in var.replication_tasks : k => v if var.create && ! contains(keys(v), "serverless_config") }
 
   cdc_start_position        = try(each.value.cdc_start_position, null)
   cdc_start_time            = try(each.value.cdc_start_time, null)
@@ -404,7 +404,7 @@ resource "aws_dms_replication_task" "this" {
 # Replication Task - Serverless
 ################################################################################
 resource "aws_dms_replication_config" "this" {
-  for_each = { for k, v in var.replication_tasks : k => v if var.create && v.serverless_config != null }
+  for_each = { for k, v in var.replication_tasks : k => v if var.create && contains(keys(v), "serverless_config") }
 
   replication_config_identifier = each.value.replication_task_id
   resource_identifier           = each.value.replication_task_id
