@@ -112,6 +112,11 @@ output "replication_tasks" {
   value       = aws_dms_replication_task.this
 }
 
+output "serverless_replication_tasks" {
+  description = "value"
+  value       = aws_dms_replication_config.this
+}
+
 ################################################################################
 # Event Subscription
 ################################################################################
