@@ -303,14 +303,14 @@ Examples codified under the [`examples`](https://github.com/terraform-aws-module
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.31 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.32 |
 | <a name="requirement_time"></a> [time](#requirement\_time) | >= 0.9 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.31 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.32 |
 | <a name="provider_time"></a> [time](#provider\_time) | >= 0.9 |
 
 ## Modules
@@ -428,7 +428,7 @@ No modules.
 | <a name="output_replication_subnet_group_id"></a> [replication\_subnet\_group\_id](#output\_replication\_subnet\_group\_id) | The ID of the subnet group |
 | <a name="output_replication_tasks"></a> [replication\_tasks](#output\_replication\_tasks) | A map of maps containing the replication tasks created and their full output of attributes and values |
 | <a name="output_s3_endpoints"></a> [s3\_endpoints](#output\_s3\_endpoints) | A map of maps containing the S3 endpoints created and their full output of attributes and values |
-| <a name="output_serverless_replication_tasks"></a> [serverless\_replication\_tasks](#output\_serverless\_replication\_tasks) | value |
+| <a name="output_serverless_replication_tasks"></a> [serverless\_replication\_tasks](#output\_serverless\_replication\_tasks) | A map of maps containing the serverless replication tasks (replication\_config) created and their full output of attributes and values |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## License
