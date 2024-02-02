@@ -78,6 +78,12 @@ variable "repl_subnet_group_tags" {
 # Instance
 ################################################################################
 
+variable "create_repl_instance" {
+  description = "Indicates whether a replication instace should be created"
+  type        = bool
+  default     = true
+}
+
 variable "repl_instance_allocated_storage" {
   description = "The amount of storage (in gigabytes) to be initially allocated for the replication instance. Min: 5, Max: 6144, Default: 50"
   type        = number

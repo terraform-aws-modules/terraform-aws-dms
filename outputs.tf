@@ -112,6 +112,11 @@ output "replication_tasks" {
   value       = aws_dms_replication_task.this
 }
 
+output "serverless_replication_tasks" {
+  description = "A map of maps containing the serverless replication tasks (replication_config) created and their full output of attributes and values"
+  value       = aws_dms_replication_config.this
+}
+
 ################################################################################
 # Event Subscription
 ################################################################################
