@@ -1,4 +1,4 @@
-# Complete AWS DMS Example
+# Serverless AWS DMS Example
 
 Configuration in this directory creates:
 
