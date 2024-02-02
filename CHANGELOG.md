@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.1.0...v2.2.0) (2024-02-02)
+
+
+### Features
+
+* Add Serverless replication task support ([#56](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/56)) ([c5fcb29](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/c5fcb2968301fa9774c6923507c0389f29db7538))
+
 ## [2.1.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.0.1...v2.1.0) (2023-12-22)
 
 
