@@ -347,3 +347,15 @@ variable "access_target_dynamodb_table_arns" {
   type        = list(string)
   default     = []
 }
+
+variable "vpc_role_name" {
+  description = "Name to use on IAM role created"
+  type        = string
+  default     = "dms-vpc-role"
+}
+
+variable "cloudwatch_logs_role_name" {
+  description = "Name to use on IAM role created"
+  type        = string
+  default     = "dms-cloudwatch-logs-role"
+}
