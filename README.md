@@ -366,6 +366,7 @@ No modules.
 | <a name="input_access_target_kinesis_arns"></a> [access\_target\_kinesis\_arns](#input\_access\_target\_kinesis\_arns) | A list of Kinesis ARNs the access IAM role is permitted to access | `list(string)` | `[]` | no |
 | <a name="input_access_target_s3_bucket_arns"></a> [access\_target\_s3\_bucket\_arns](#input\_access\_target\_s3\_bucket\_arns) | A list of S3 bucket ARNs the access IAM role is permitted to access | `list(string)` | `[]` | no |
 | <a name="input_certificates"></a> [certificates](#input\_certificates) | Map of objects that define the certificates to be created | `map(any)` | `{}` | no |
+| <a name="input_cloudwatch_logs_role_name"></a> [cloudwatch\_logs\_role\_name](#input\_cloudwatch\_logs\_role\_name) | Name to use on IAM role created | `string` | `"dms-cloudwatch-logs-role"` | no |
 | <a name="input_create"></a> [create](#input\_create) | Determines whether resources will be created | `bool` | `true` | no |
 | <a name="input_create_access_iam_role"></a> [create\_access\_iam\_role](#input\_create\_access\_iam\_role) | Determines whether the ECS task definition IAM role should be created | `bool` | `true` | no |
 | <a name="input_create_access_policy"></a> [create\_access\_policy](#input\_create\_access\_policy) | Determines whether the IAM policy should be created | `bool` | `true` | no |
@@ -402,6 +403,7 @@ No modules.
 | <a name="input_replication_tasks"></a> [replication\_tasks](#input\_replication\_tasks) | Map of objects that define the replication tasks to be created | `any` | `{}` | no |
 | <a name="input_s3_endpoints"></a> [s3\_endpoints](#input\_s3\_endpoints) | Map of objects that define the S3 endpoints to be created | `any` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to use on all resources | `map(string)` | `{}` | no |
+| <a name="input_vpc_role_name"></a> [vpc\_role\_name](#input\_vpc\_role\_name) | Name to use on IAM role created | `string` | `"dms-vpc-role"` | no |
 
 ## Outputs
 
