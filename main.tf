@@ -180,7 +180,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Elasticsearch.html
   dynamic "elasticsearch_settings" {
-    for_each = length(lookup(each.value, "elasticsearch_settings", [])) > 0 ? [each.value.elasticsearch_settings] : []
+    for_each = try(each.value.elasticsearch_settings, null) != null ? [each.value.elasticsearch_settings] : []
 
     content {
       endpoint_uri               = elasticsearch_settings.value.endpoint_uri
@@ -198,7 +198,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kafka.html
   dynamic "kafka_settings" {
-    for_each = length(lookup(each.value, "kafka_settings", [])) > 0 ? [each.value.kafka_settings] : []
+    for_each = try(each.value.kafka_settings, null) != null ? [each.value.kafka_settings] : []
 
     content {
       broker                         = kafka_settings.value.broker
@@ -224,7 +224,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Kinesis.html
   dynamic "kinesis_settings" {
-    for_each = length(lookup(each.value, "kinesis_settings", [])) > 0 ? [each.value.kinesis_settings] : []
+    for_each = try(each.value.kinesis_settings, null) != null ? [each.value.kinesis_settings] : []
 
     content {
       include_control_details        = try(kinesis_settings.value.include_control_details, null)
@@ -243,7 +243,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MongoDB.html
   dynamic "mongodb_settings" {
-    for_each = length(lookup(each.value, "mongodb_settings", [])) > 0 ? [each.value.mongodb_settings] : []
+    for_each = try(each.value.mongodb_settings, null) != null ? [each.value.mongodb_settings] : []
 
     content {
       auth_mechanism      = try(mongodb_settings.value.auth_mechanism, null)
@@ -261,7 +261,7 @@ resource "aws_dms_endpoint" "this" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.PostgreSQL.html
   dynamic "postgres_settings" {
-    for_each = length(lookup(each.value, "postgres_settings", [])) > 0 ? [each.value.postgres_settings] : []
+    for_each = try(each.value.postgres_settings, null) != null ? [each.value.postgres_settings] : []
     content {
       after_connect_script         = try(postgres_settings.value.after_connect_script, null)
       babelfish_database_name      = try(postgres_settings.value.babelfish_database_name, null)
@@ -283,7 +283,7 @@ resource "aws_dms_endpoint" "this" {
   }
 
   dynamic "redis_settings" {
-    for_each = length(lookup(each.value, "redis_settings", [])) > 0 ? [each.value.redis_settings] : []
+    for_each = try(each.value.redis_settings, null) != null ? [each.value.redis_settings] : []
 
     content {
       auth_password          = try(redis_settings.value.auth_password, null)
@@ -297,7 +297,7 @@ resource "aws_dms_endpoint" "this" {
   }
 
   dynamic "redshift_settings" {
-    for_each = length(lookup(each.value, "redshift_settings", [])) > 0 ? [each.value.redshift_settings] : []
+    for_each = try(each.value.redshift_settings, null) != null ? [each.value.redshift_settings] : []
 
     content {
       bucket_folder                     = try(redshift_settings.value.bucket_folder, null)

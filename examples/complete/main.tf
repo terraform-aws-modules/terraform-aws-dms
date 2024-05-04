@@ -30,6 +30,9 @@ locals {
     Example    = local.name
     Repository = "https://github.com/terraform-aws-modules/terraform-aws-dms"
   }
+
+  # If you want to test the additional task, set this to true
+  is_additional_task_needed = true
 }
 
 ################################################################################
@@ -114,7 +117,7 @@ module "dms_aurora_postgresql_aurora_mysql" {
   }
 
   # Endpoints
-  endpoints = {
+  endpoints = merge({
     postgresql-destination = {
       database_name               = local.db_name
       endpoint_id                 = "${local.name}-postgresql-destination"
@@ -173,9 +176,20 @@ module "dms_aurora_postgresql_aurora_mysql" {
 
       tags = { EndpointType = "kakfa-destination" }
     }
-  }
+    }, local.is_additional_task_needed ? {
+    mysql-source = {
+      database_name               = local.db_name
+      endpoint_id                 = "${local.name}-mysql-source"
+      endpoint_type               = "source"
+      engine_name                 = "aurora"
+      extra_connection_attributes = "secretsManagerEndpointOverride=${module.vpc_endpoints.endpoints["secretsmanager"]["dns_entry"][0]["dns_name"]}"
+      secrets_manager_arn         = module.secrets_manager_mysql.secret_arn
 
-  replication_tasks = {
+      tags = { EndpointType = "mysql-source" }
+    } } : {}
+  )
+
+  replication_tasks = merge({
     s3_import = {
       replication_task_id       = "${local.name}-s3-import"
       migration_type            = "full-load"
@@ -203,7 +217,17 @@ module "dms_aurora_postgresql_aurora_mysql" {
       target_endpoint_key       = "kafka-destination"
       tags                      = { Task = "PostgreSQL-to-Kafka" }
     }
-  }
+    }, local.is_additional_task_needed ? {
+    mysql_postgresql = {
+      replication_task_id       = "${local.name}-mysql-to-postgresql"
+      migration_type            = "full-load-and-cdc"
+      replication_task_settings = file("configs/task_settings.json")
+      table_mappings            = file("configs/table_mappings.json")
+      source_endpoint_key       = "mysql-source"
+      target_endpoint_key       = "postgresql-destination"
+      tags                      = { Task = "MySQL-to-PostgreSQL" }
+    }
+  } : {})
 
   event_subscriptions = {
     instance = {
