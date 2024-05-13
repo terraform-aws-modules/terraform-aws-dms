@@ -593,18 +593,31 @@ data "aws_iam_policy_document" "access" {
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.S3.html#CHAP_Target.S3.Prerequisites
   dynamic "statement" {
-    for_each = length(var.access_target_s3_bucket_arns) > 0 ? [1] : []
+    for_each = length(var.access_target_s3_bucket_arns) > 0 ? var.access_target_s3_bucket_arns : []
+    iterator = access_target_s3_bucket_arn
 
     content {
-      sid = "S3Target"
+      sid = "S3ObjectTarget"
       actions = [
-        "s3:ListBucket",
         "s3:PutObject",
         "s3:DeleteObject",
         "s3:PutObjectTagging",
       ]
-      resources = var.access_target_s3_bucket_arns
+      resources = toset(["${access_target_s3_bucket_arn.value}/*"])
     }
+  }
+  dynamic "statement" {
+    for_each = length(var.access_target_s3_bucket_arns) > 0 ? var.access_target_s3_bucket_arns : []
+    iterator = access_target_s3_bucket_arn
+
+    content {
+      sid = "S3BucketTarget"
+      actions = [
+        "s3:ListBucket",
+      ]
+      resources = toset([access_target_s3_bucket_arn.value])
+    }
+
   }
 
   # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Elasticsearch.html#CHAP_Target.Elasticsearch.Prerequisites
