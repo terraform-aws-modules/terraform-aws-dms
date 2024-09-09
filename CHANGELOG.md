@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.2.1...v2.3.0) (2024-09-09)
+
+
+### Features
+
+* Support externally created source and target endpoint ARNs ([#72](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/72)) ([2575ab3](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/2575ab325d4855b5f816fbb2f3acd0745697d0d1))
+
 ## [2.2.1](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.2.0...v2.2.1) (2024-03-07)
 
 
