@@ -392,10 +392,10 @@ resource "aws_dms_replication_task" "this" {
   replication_instance_arn  = aws_dms_replication_instance.this[0].replication_instance_arn
   replication_task_id       = each.value.replication_task_id
   replication_task_settings = try(each.value.replication_task_settings, null)
-  source_endpoint_arn       = try(aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.source_endpoint_key].endpoint_arn)
+  source_endpoint_arn       = try(each.value.source_endpoint_arn, aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.source_endpoint_key].endpoint_arn)
   start_replication_task    = try(each.value.start_replication_task, null)
   table_mappings            = try(each.value.table_mappings, null)
-  target_endpoint_arn       = try(aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.target_endpoint_key].endpoint_arn)
+  target_endpoint_arn       = try(each.value.target_endpoint_arn, aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.target_endpoint_key].endpoint_arn)
 
   tags = merge(var.tags, try(each.value.tags, {}))
 }
@@ -410,8 +410,8 @@ resource "aws_dms_replication_config" "this" {
   resource_identifier           = each.value.replication_task_id
 
   replication_type    = each.value.migration_type
-  source_endpoint_arn = try(aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.source_endpoint_key].endpoint_arn)
-  target_endpoint_arn = try(aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.target_endpoint_key].endpoint_arn)
+  source_endpoint_arn = try(each.value.source_endpoint_arn, aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.source_endpoint_key].endpoint_arn)
+  target_endpoint_arn = try(each.value.target_endpoint_arn, aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.target_endpoint_key].endpoint_arn)
   table_mappings      = try(each.value.table_mappings, null)
 
   replication_settings  = try(each.value.replication_task_settings, null)
