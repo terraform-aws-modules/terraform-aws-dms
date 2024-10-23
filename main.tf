@@ -98,7 +98,7 @@ resource "aws_iam_role_policy_attachments_exclusive" "amazon_dms_redshift_S3_rol
 resource "aws_iam_role" "dms_cloudwatch_logs_role" {
   count = var.create && var.create_iam_roles ? 1 : 0
 
-  name                  = "dms-cloudwatch-logs-role3"
+  name                  = "dms-cloudwatch-logs-role"
   description           = "DMS IAM role for CloudWatch logs permissions"
   permissions_boundary  = var.iam_role_permissions_boundary
   assume_role_policy    = data.aws_iam_policy_document.dms_assume_role[0].json
@@ -117,7 +117,7 @@ resource "aws_iam_role_policy_attachments_exclusive" "amazon_dms_cloud_watch_log
 resource "aws_iam_role" "dms_vpc_role" {
   count = var.create && var.create_iam_roles ? 1 : 0
 
-  name                  = "dms-vpc-role2"
+  name                  = "dms-vpc-role"
   description           = "DMS IAM role for VPC permissions"
   permissions_boundary  = var.iam_role_permissions_boundary
   assume_role_policy    = data.aws_iam_policy_document.dms_assume_role[0].json
