@@ -7,7 +7,6 @@ locals {
   dns_suffix = data.aws_partition.current.dns_suffix
   partition  = data.aws_partition.current.partition
   region     = data.aws_region.current.name
-
   subnet_group_id = var.create && var.create_repl_subnet_group ? aws_dms_replication_subnet_group.this[0].id : var.repl_instance_subnet_group_id
 }
 
@@ -84,10 +83,14 @@ resource "aws_iam_role" "dms_access_for_endpoint" {
   description           = "DMS IAM role for endpoint access permissions"
   permissions_boundary  = var.iam_role_permissions_boundary
   assume_role_policy    = var.enable_redshift_target_permissions ? data.aws_iam_policy_document.dms_assume_role_redshift[0].json : data.aws_iam_policy_document.dms_assume_role[0].json
-  managed_policy_arns   = ["arn:${local.partition}:iam::aws:policy/service-role/AmazonDMSRedshiftS3Role"]
   force_detach_policies = true
-
   tags = merge(var.tags, var.iam_role_tags)
+}
+
+# Attach AmazonDMSRedshiftS3Role to endpoint role
+resource "aws_iam_role_policy_attachments_exclusive" "amazon_dms_redshift_S3_role_attach" {
+  policy_arns =  ["arn:${local.partition}:iam::aws:policy/service-role/AmazonDMSRedshiftS3Role"]
+  role_name = aws_iam_role.dms_access_for_endpoint[0].name
 }
 
 # DMS CloudWatch Logs
@@ -98,10 +101,15 @@ resource "aws_iam_role" "dms_cloudwatch_logs_role" {
   description           = "DMS IAM role for CloudWatch logs permissions"
   permissions_boundary  = var.iam_role_permissions_boundary
   assume_role_policy    = data.aws_iam_policy_document.dms_assume_role[0].json
-  managed_policy_arns   = ["arn:${local.partition}:iam::aws:policy/service-role/AmazonDMSCloudWatchLogsRole"]
   force_detach_policies = true
 
   tags = merge(var.tags, var.iam_role_tags)
+}
+
+# Attach AmazonDMSCloudWatchLogsRole to endpoint role
+resource "aws_iam_role_policy_attachments_exclusive" "amazon_dms_cloud_watch_logs_role_attach" {
+  policy_arns =  ["arn:${local.partition}:iam::aws:policy/service-role/AmazonDMSCloudWatchLogsRole"]
+  role_name = aws_iam_role.dms_cloudwatch_logs_role[0].name
 }
 
 # DMS VPC
@@ -112,10 +120,15 @@ resource "aws_iam_role" "dms_vpc_role" {
   description           = "DMS IAM role for VPC permissions"
   permissions_boundary  = var.iam_role_permissions_boundary
   assume_role_policy    = data.aws_iam_policy_document.dms_assume_role[0].json
-  managed_policy_arns   = ["arn:${local.partition}:iam::aws:policy/service-role/AmazonDMSVPCManagementRole"]
   force_detach_policies = true
 
   tags = merge(var.tags, var.iam_role_tags)
+}
+
+# Attach AmazonDMSVPCManagementRole to endpoint role
+resource "aws_iam_role_policy_attachments_exclusive" "amazon_dms_vpc_management_role_attach" {
+  policy_arns   = ["arn:${local.partition}:iam::aws:policy/service-role/AmazonDMSVPCManagementRole"]
+  role_name = aws_iam_role.dms_vpc_role[0].name
 }
 
 ################################################################################
@@ -392,10 +405,10 @@ resource "aws_dms_replication_task" "this" {
   replication_instance_arn  = aws_dms_replication_instance.this[0].replication_instance_arn
   replication_task_id       = each.value.replication_task_id
   replication_task_settings = try(each.value.replication_task_settings, null)
-  source_endpoint_arn       = try(each.value.source_endpoint_arn, aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.source_endpoint_key].endpoint_arn)
+  source_endpoint_arn       = try(aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.source_endpoint_key].endpoint_arn)
   start_replication_task    = try(each.value.start_replication_task, null)
   table_mappings            = try(each.value.table_mappings, null)
-  target_endpoint_arn       = try(each.value.target_endpoint_arn, aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.target_endpoint_key].endpoint_arn)
+  target_endpoint_arn       = try(aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.target_endpoint_key].endpoint_arn)
 
   tags = merge(var.tags, try(each.value.tags, {}))
 }
@@ -410,8 +423,8 @@ resource "aws_dms_replication_config" "this" {
   resource_identifier           = each.value.replication_task_id
 
   replication_type    = each.value.migration_type
-  source_endpoint_arn = try(each.value.source_endpoint_arn, aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.source_endpoint_key].endpoint_arn)
-  target_endpoint_arn = try(each.value.target_endpoint_arn, aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.target_endpoint_key].endpoint_arn)
+  source_endpoint_arn = try(aws_dms_endpoint.this[each.value.source_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.source_endpoint_key].endpoint_arn)
+  target_endpoint_arn = try(aws_dms_endpoint.this[each.value.target_endpoint_key].endpoint_arn, aws_dms_s3_endpoint.this[each.value.target_endpoint_key].endpoint_arn)
   table_mappings      = try(each.value.table_mappings, null)
 
   replication_settings  = try(each.value.replication_task_settings, null)
