@@ -79,7 +79,7 @@ variable "repl_subnet_group_tags" {
 ################################################################################
 
 variable "create_repl_instance" {
-  description = "Indicates whether a replication instace should be created"
+  description = "Indicates whether a replication instance should be created"
   type        = bool
   default     = true
 }
