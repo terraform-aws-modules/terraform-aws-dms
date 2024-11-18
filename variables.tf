@@ -187,6 +187,16 @@ variable "repl_instance_timeouts" {
 }
 
 ################################################################################
+# Replication task - serverless
+################################################################################
+
+variable "repl_config_timeouts" {
+  description = "A map of timeouts for serverless replication config create/update/delete operations"
+  type        = map(string)
+  default     = {}
+}
+
+################################################################################
 # Endpoint
 ################################################################################
 
