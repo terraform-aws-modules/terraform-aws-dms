@@ -30,19 +30,18 @@ data "aws_iam_policy_document" "dms_assume_role" {
       identifiers = ["dms.${local.dns_suffix}"]
       type        = "Service"
     }
+    # # https://docs.aws.amazon.com/dms/latest/userguide/cross-service-confused-deputy-prevention.html#cross-service-confused-deputy-prevention-dms-api
+    # condition {
+    #   test     = "ArnLike"
+    #   variable = "aws:SourceArn"
+    #   values   = ["arn:${local.partition}:dms:${local.region}:${local.account_id}:*"]
+    # }
 
-    # https://docs.aws.amazon.com/dms/latest/userguide/cross-service-confused-deputy-prevention.html#cross-service-confused-deputy-prevention-dms-api
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = ["arn:${local.partition}:dms:${local.region}:${local.account_id}:*"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceAccount"
-      values   = [local.account_id]
-    }
+    # condition {
+    #   test     = "StringEquals"
+    #   variable = "aws:SourceAccount"
+    #   values   = [local.account_id]
+    # }
   }
 }
 
