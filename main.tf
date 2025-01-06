@@ -446,6 +446,12 @@ resource "aws_dms_replication_config" "this" {
   }
 
   tags = merge(var.tags, try(each.value.tags, {}))
+
+  timeouts {
+    create = try(var.repl_config_timeouts.create, null)
+    update = try(var.repl_config_timeouts.update, null)
+    delete = try(var.repl_config_timeouts.delete, null)
+  }
 }
 
 

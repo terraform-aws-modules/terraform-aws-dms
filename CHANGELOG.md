@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.3.0...v2.4.0) (2024-11-18)
+
+
+### Features
+
+* Make repl config timeouts configurable ([#82](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/82)) ([491f197](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/491f1979be843aa462f21860cc11932f953b6d12))
+
+
+### Bug Fixes
+
+* Update CI workflow versions to latest ([#74](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/74)) ([060e894](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/060e89496b3925aa659181a14441636e56c0b696))
+
 ## [2.3.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.2.1...v2.3.0) (2024-09-09)
 
 
