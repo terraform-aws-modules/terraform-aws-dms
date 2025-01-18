@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.4.0...v2.5.0) (2025-01-18)
+
+
+### Features
+
+* Support `kafka_settings.sasl_mechanism` and `resource_identifier` ([#86](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/86)) ([692d07d](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/692d07d2de0c6bac1b47f51ab2cefde22a4bab1e))
+
 ## [2.4.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.3.0...v2.4.0) (2024-11-18)
 
 
