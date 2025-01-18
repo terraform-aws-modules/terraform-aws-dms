@@ -148,6 +148,7 @@ module "dms_aurora_postgresql_aurora_mysql" {
         include_control_details = true
         include_null_and_empty  = true
         message_format          = "json"
+        sasl_mechanism          = "scram-sha-512"
         sasl_password           = local.sasl_scram_credentials["password"]
         sasl_username           = local.sasl_scram_credentials["username"]
         security_protocol       = "sasl-ssl"
