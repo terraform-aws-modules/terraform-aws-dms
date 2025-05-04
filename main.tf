@@ -237,6 +237,7 @@ resource "aws_dms_endpoint" "this" {
       partition_include_schema_table = try(kinesis_settings.value.partition_include_schema_table, null)
       service_access_role_arn        = lookup(kinesis_settings.value, "service_access_role_arn", local.access_iam_role)
       stream_arn                     = lookup(kinesis_settings.value, "stream_arn", null)
+      use_large_integer_value        = try(kinesis_settings.value.use_large_integer_value, null)
     }
   }
 

@@ -1,5 +1,6 @@
 provider "aws" {
-  region = local.region
+  region                   = local.region
+  shared_credentials_files = ["~/.aws/credentials"]
 }
 
 data "aws_availability_zones" "available" {}
