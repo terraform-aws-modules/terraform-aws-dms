@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.5.0...v2.6.0) (2025-05-05)
+
+
+### Features
+
+* Support DMS Endpoint Kinesis Settings `use_large_integer_value` ([#87](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/87)) ([a6ae8f6](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/a6ae8f6f8c801ba60dcdb63ba9ec78230848e685))
+
 ## [2.5.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.4.0...v2.5.0) (2025-01-18)
 
 
