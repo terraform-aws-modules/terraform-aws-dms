@@ -281,6 +281,7 @@ resource "aws_dms_endpoint" "this" {
       map_long_varchar_as          = try(postgres_settings.value.map_long_varchar_as, null)
       max_file_size                = try(postgres_settings.value.max_file_size, null)
       plugin_name                  = try(postgres_settings.value.plugin_name, null)
+      service_access_role_arn      = try(postgres_settings.value.service_access_role_arn, null)
       slot_name                    = try(postgres_settings.value.slot_name, null)
     }
   }
