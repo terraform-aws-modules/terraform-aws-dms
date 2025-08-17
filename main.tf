@@ -6,7 +6,7 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
   dns_suffix = data.aws_partition.current.dns_suffix
   partition  = data.aws_partition.current.partition
-  region     = data.aws_region.current.name
+  region     = data.aws_region.current.region
 
   subnet_group_id = var.create && var.create_repl_subnet_group ? aws_dms_replication_subnet_group.this[0].id : var.repl_instance_subnet_group_id
 }
@@ -266,6 +266,7 @@ resource "aws_dms_endpoint" "this" {
     for_each = length(lookup(each.value, "postgres_settings", [])) > 0 ? [each.value.postgres_settings] : []
     content {
       after_connect_script         = try(postgres_settings.value.after_connect_script, null)
+      authentication_method        = try(postgres_settings.value.authentication_method, null)
       babelfish_database_name      = try(postgres_settings.value.babelfish_database_name, null)
       capture_ddls                 = try(postgres_settings.value.capture_ddls, null)
       database_mode                = try(postgres_settings.value.database_mode, null)
@@ -280,6 +281,7 @@ resource "aws_dms_endpoint" "this" {
       map_long_varchar_as          = try(postgres_settings.value.map_long_varchar_as, null)
       max_file_size                = try(postgres_settings.value.max_file_size, null)
       plugin_name                  = try(postgres_settings.value.plugin_name, null)
+      service_access_role_arn      = try(postgres_settings.value.service_access_role_arn, null)
       slot_name                    = try(postgres_settings.value.slot_name, null)
     }
   }
