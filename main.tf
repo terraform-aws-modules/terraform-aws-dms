@@ -318,15 +318,16 @@ resource "aws_dms_endpoint" "this" {
   username                        = try(each.value.username, null)
 
   lifecycle {
-    replace_triggered_by = [ random_id.dms_endpoint_replace_trigger ]
+    replace_triggered_by = [ random_id.dms_endpoint_replace_trigger[each.key] ]
   }
 
   tags = merge(var.tags, try(each.value.tags, {}))
 }
 
 resource "random_id" "dms_endpoint_replace_trigger" {
+  for_each = { for k, v in var.endpoints : k => v if var.create}
   keepers = {
-    settings_json = jsonencode(var.endpoints)
+    settings_json = jsonencode(var.endpoints[each.key])
   }
   byte_length = 8
 }
