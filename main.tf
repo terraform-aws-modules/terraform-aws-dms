@@ -317,7 +317,18 @@ resource "aws_dms_endpoint" "this" {
   ssl_mode                        = try(each.value.ssl_mode, null)
   username                        = try(each.value.username, null)
 
+  lifecycle {
+    replace_triggered_by = [ random_id.dms_endpoint_replace_trigger ]
+  }
+
   tags = merge(var.tags, try(each.value.tags, {}))
+}
+
+resource "random_id" "dms_endpoint_replace_trigger" {
+  keepers = {
+    settings_json = jsonencode(var.endpoints)
+  }
+  byte_length = 8
 }
 
 ################################################################################
