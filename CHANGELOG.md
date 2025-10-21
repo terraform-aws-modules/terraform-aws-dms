@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.1](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.6.0...v2.6.1) (2025-10-21)
+
+### Bug Fixes
+
+* Update CI workflow versions to latest ([#94](https://github.com/terraform-aws-modules/terraform-aws-dms/issues/94)) ([59e6c77](https://github.com/terraform-aws-modules/terraform-aws-dms/commit/59e6c77239e1d7c6ba5fe0f89f07b94054933a33))
+
 ## [2.6.0](https://github.com/terraform-aws-modules/terraform-aws-dms/compare/v2.5.0...v2.6.0) (2025-05-05)
 
 
