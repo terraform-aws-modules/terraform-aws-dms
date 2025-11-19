@@ -459,11 +459,11 @@ resource "aws_dms_event_subscription" "this" {
   source_ids = compact(concat(
     [
       for instance in aws_dms_replication_instance.this[*] :
-      instance.replication_instance_id if lookup(each.value, "instance_event_subscription_keys", null) == var.repl_instance_id
+      instance.replication_instance_id if contains(lookup(each.value, "instance_event_subscription_keys", []), var.repl_instance_id)
     ],
     [
       for task in aws_dms_replication_task.this[*] :
-      task.replication_task_id if contains(lookup(each.value, "task_event_subscription_keys", []), each.key)
+      task.replication_task_id if contains(lookup(each.value, "task_event_subscription_keys", []), task.replication_task_id)
     ]
   ))
 
