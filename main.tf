@@ -391,7 +391,7 @@ resource "aws_dms_replication_task" "this" {
   cdc_start_position        = try(each.value.cdc_start_position, null)
   cdc_start_time            = try(each.value.cdc_start_time, null)
   migration_type            = each.value.migration_type
-  replication_instance_arn  = aws_dms_replication_instance.this[0].replication_instance_arn
+  replication_instance_arn  = var.create_repl_instance ? aws_dms_replication_instance.this[0].replication_instance_arn : try(var.replication_instance_arn, null)
   replication_task_id       = each.value.replication_task_id
   replication_task_settings = try(each.value.replication_task_settings, null)
   resource_identifier       = try(each.value.resource_identifier, null)
