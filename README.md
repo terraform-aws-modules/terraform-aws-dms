@@ -400,6 +400,7 @@ No modules.
 | <a name="input_repl_subnet_group_name"></a> [repl\_subnet\_group\_name](#input\_repl\_subnet\_group\_name) | The name for the replication subnet group. Stored as a lowercase string, must contain no more than 255 alphanumeric characters, periods, spaces, underscores, or hyphens | `string` | `null` | no |
 | <a name="input_repl_subnet_group_subnet_ids"></a> [repl\_subnet\_group\_subnet\_ids](#input\_repl\_subnet\_group\_subnet\_ids) | A list of the EC2 subnet IDs for the subnet group | `list(string)` | `[]` | no |
 | <a name="input_repl_subnet_group_tags"></a> [repl\_subnet\_group\_tags](#input\_repl\_subnet\_group\_tags) | A map of additional tags to apply to the replication subnet group | `map(string)` | `{}` | no |
+| <a name="input_replication_instance_arn"></a> [replication\_instance\_arn](#input\_replication\_instance\_arn) | The ARN of an existing replication instance to be used by replication tasks. Required if `create_repl_instance` is set to `false` | `string` | `null` | no |
 | <a name="input_replication_tasks"></a> [replication\_tasks](#input\_replication\_tasks) | Map of objects that define the replication tasks to be created | `any` | `{}` | no |
 | <a name="input_s3_endpoints"></a> [s3\_endpoints](#input\_s3\_endpoints) | Map of objects that define the S3 endpoints to be created | `any` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to use on all resources | `map(string)` | `{}` | no |

@@ -84,6 +84,12 @@ variable "create_repl_instance" {
   default     = true
 }
 
+variable "replication_instance_arn" {
+  description = "The ARN of an existing replication instance to be used by replication tasks. Required if `create_repl_instance` is set to `false`"
+  type        = string
+  default     = null
+}
+
 variable "repl_instance_allocated_storage" {
   description = "The amount of storage (in gigabytes) to be initially allocated for the replication instance. Min: 5, Max: 6144, Default: 50"
   type        = number
