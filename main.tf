@@ -6,7 +6,7 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
   dns_suffix = data.aws_partition.current.dns_suffix
   partition  = data.aws_partition.current.partition
-  region     = data.aws_region.current.name
+  region     = data.aws_region.current.id
 
   subnet_group_id = var.create && var.create_repl_subnet_group ? aws_dms_replication_subnet_group.this[0].id : var.repl_instance_subnet_group_id
 }
@@ -391,7 +391,7 @@ resource "aws_dms_replication_task" "this" {
   cdc_start_position        = try(each.value.cdc_start_position, null)
   cdc_start_time            = try(each.value.cdc_start_time, null)
   migration_type            = each.value.migration_type
-  replication_instance_arn  = aws_dms_replication_instance.this[0].replication_instance_arn
+  replication_instance_arn  = var.create_repl_instance ? aws_dms_replication_instance.this[0].replication_instance_arn : try(var.replication_instance_arn, null)
   replication_task_id       = each.value.replication_task_id
   replication_task_settings = try(each.value.replication_task_settings, null)
   resource_identifier       = try(each.value.resource_identifier, null)

@@ -65,7 +65,7 @@ output "replication_subnet_group_id" {
 
 output "replication_instance_arn" {
   description = "The Amazon Resource Name (ARN) of the replication instance"
-  value       = try(aws_dms_replication_instance.this[0].replication_instance_arn, null)
+  value       = try(aws_dms_replication_instance.this[0].replication_instance_arn, var.replication_instance_arn)
 }
 
 output "replication_instance_private_ips" {
