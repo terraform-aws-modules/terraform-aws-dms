@@ -257,6 +257,23 @@ resource "aws_dms_endpoint" "this" {
     }
   }
 
+  # https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MySQL.html
+  dynamic "mysql_settings" {
+    for_each = length(lookup(each.value, "mysql_settings", [])) > 0 ? [each.value.mysql_settings] : []
+    content {
+      after_connect_script              = try(mysql_settings.value.after_connect_script, null)
+      authentication_method             = try(mysql_settings.value.authentication_method, null)
+      clean_source_metadata_on_mismatch = try(mysql_settings.value.clean_source_metadata_on_mismatch, null)
+      events_poll_interval              = try(mysql_settings.value.events_poll_interval, null)
+      execute_timeout                   = try(mysql_settings.value.execute_timeout, null)
+      max_file_size                     = try(mysql_settings.value.max_file_size, null)
+      parallel_load_threads             = try(mysql_settings.value.parallel_load_threads, null)
+      server_timezone                   = try(mysql_settings.value.server_timezone, null)
+      service_access_role_arn           = try(mysql_settings.value.service_access_role_arn, null)
+      target_db_type                    = try(mysql_settings.value.target_db_type, null)
+    }
+  }
+
   password                = lookup(each.value, "password", null)
   pause_replication_tasks = try(each.value.pause_replication_tasks, null)
   port                    = try(each.value.port, null)
